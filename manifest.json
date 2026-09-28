@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Bookmark Archive",
+  "version": "2.0.0",
+  "description": "Your bookmarks bar, curated as a beautiful archive — every new tab.",
+  "permissions": ["bookmarks", "storage", "favicon"],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "action": {
+    "default_title": "Bookmark Archive",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src * data: chrome-extension:"
+  }
+}
