@@ -1,6 +1,6 @@
 # Nookmark
 
-一款将 Chrome 书签整理成卡片的新标签页扩展（扩展名称：Bookmark Archive）。支持中英文、明暗主题、文件夹排序、置顶链接、近期点击排行和书签搜索。
+一款将 Chrome 书签整理成卡片的新标签页扩展。支持中英文、明暗主题、文件夹排序、置顶链接、近期点击排行和书签搜索。
 
 ## 安装
 
@@ -21,7 +21,7 @@
 
 项目使用原生 HTML、CSS 和 JavaScript，无需构建步骤。修改源码后，在 `chrome://extensions` 中重新加载扩展即可预览。
 
-`chrome-bar.zip` 是本地生成的安装包，不纳入 Git 历史。
+`nookmark.zip` 是本地生成的安装包，不纳入 Git 历史。
 
 ## License
 
