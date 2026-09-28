@@ -3,6 +3,11 @@
   "name": "Nookmark",
   "version": "2.0.0",
   "description": "Your bookmarks bar, curated as a beautiful archive — every new tab.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "permissions": ["bookmarks", "storage", "favicon"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
