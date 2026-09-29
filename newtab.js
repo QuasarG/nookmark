@@ -23,7 +23,7 @@ const T = {
     settings_open_new_tab: 'Open in New Tab', settings_open_new_tab_desc: 'Open bookmarks in a new tab instead of the current one.',
     saved: 'Saved.',
     nav_all: 'All Bookmarks', nav_recent: 'Recently Added',
-    sec_bar: 'Bookmarks Bar', sec_pinned: 'Pinned', pinned_empty: 'Right-click a link to pin it', pin: 'Pin link', unpin: 'Unpin link', sec_recent_top: 'Last 7 Days · Top 10', sec_recent_empty: 'No clicks yet', sec_other: 'Other Bookmarks', sec_hidden: 'Hidden',
+    sec_bar: 'Bookmarks Bar', sec_pinned: 'Pinned', pinned_empty: 'Right-click a link to pin it', pin: 'Pin link', unpin: 'Unpin link', sec_recent_top: 'Last 7 Days · Top 5', sec_recent_empty: 'No clicks yet', sec_other: 'Other Bookmarks', sec_hidden: 'Hidden',
     drag_hint: 'Drag a card header to reorder · Undo is available after release', order_saved: 'Card order saved', undo: 'Undo',
     menu_link: 'Bookmark link', menu_folder: 'Folder', menu_page: 'This page', menu_input: 'Search box',
     menu_open: 'Open link', menu_open_new: 'Open in new tab', menu_copy_link: 'Copy link', menu_copy_text: 'Copy selected text',
@@ -68,7 +68,7 @@ const T = {
     settings_open_new_tab: '在新标签页打开', settings_open_new_tab_desc: '书签在新标签页而不是当前页打开。',
     saved: '已保存。',
     nav_all: '全部内容', nav_recent: '最近新增',
-    sec_bar: '书签栏', sec_pinned: '置顶链接', pinned_empty: '右键链接即可置顶', pin: '置顶链接', unpin: '取消置顶', sec_recent_top: '近 7 天点击 Top 10', sec_recent_empty: '暂无点击记录', sec_other: '其他书签', sec_hidden: '已隐藏',
+    sec_bar: '书签栏', sec_pinned: '置顶链接', pinned_empty: '右键链接即可置顶', pin: '置顶链接', unpin: '取消置顶', sec_recent_top: '近 7 天点击 Top 5', sec_recent_empty: '暂无点击记录', sec_other: '其他书签', sec_hidden: '已隐藏',
     drag_hint: '按住卡片标题拖动排序 · 松手后可撤销', order_saved: '卡片顺序已保存', undo: '撤销',
     menu_link: '书签链接', menu_folder: '文件夹', menu_page: '当前页面', menu_input: '搜索框',
     menu_open: '打开链接', menu_open_new: '在新标签页打开', menu_copy_link: '复制链接', menu_copy_text: '复制选中文字',
@@ -745,7 +745,7 @@ function updateNav() {
     `<button class="f-item${state.view === 'folder:' + g.folderId && !state.query ? ' active' : ''}" data-fid="${escapeAttr(g.folderId)}"><span class="f-dot" style="--h:${hueOf(g.folderId)}"></span><span class="f-name">${escapeHTML(g.folderName)}</span><span class="f-count">${countAll(g)}</span></button>`
   ).join('');
 
-  const recentTop = recentTopBookmarks(10);
+  const recentTop = recentTopBookmarks(5);
   recentTopList.innerHTML = recentTop.length
     ? recentTop.map(({ bookmark, count }, i) => `<div class="recent-top-row"><span class="recent-top-rank">${i + 1}</span>${pillMiniHTML(bookmark)}<span class="recent-top-count">${count}</span></div>`).join('')
     : `<span class="recent-top-empty">${t('sec_recent_empty')}</span>`;
