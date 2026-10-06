@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Nookmark",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Your bookmarks bar, curated as a beautiful archive — every new tab.",
   "icons": {
     "16": "icon16.png",

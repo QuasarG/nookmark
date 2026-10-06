@@ -8,18 +8,20 @@
 <link rel="stylesheet" href="newtab.css">
 </head>
 <body>
+<div class="wallpaper" id="wallpaper" aria-hidden="true"><div class="wallpaper-image" id="wallpaperImage"></div><div class="wallpaper-shade"></div></div>
 
 <!-- ===== Left Sidebar ===== -->
 <aside class="sidebar" id="sidebar">
-  <div class="brand">
+  <div class="sidebar-modules" id="sidebarModules">
+  <section data-module="clock" class="sidebar-module"><div class="brand">
     <div class="brand-clock" id="clock">00:00</div>
     <div class="brand-sub">
       <span class="brand-date" id="dateLine"></span>
       <span class="brand-greet" id="greeting"></span>
     </div>
-  </div>
+  </div></section>
 
-  <nav class="nav">
+  <section data-module="navigation" class="sidebar-module"><nav class="nav">
     <button class="nav-item active" data-view="all" id="navAll">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
       <span class="nav-label" data-i18n>nav_all</span>
@@ -30,19 +32,32 @@
       <span class="nav-label" data-i18n>nav_recent</span>
       <span class="nav-count" id="cntRecent">0</span>
     </button>
-  </nav>
+    <button class="nav-item" data-view="duplicates" id="navDuplicates">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+      <span class="nav-label" data-i18n>nav_duplicates</span><span class="nav-count" id="cntDuplicates">0</span>
+    </button>
+  </nav></section>
 
+  <section data-module="pinned" class="sidebar-module">
   <div class="sec-head" data-i18n>sec_pinned</div>
   <div class="folder-list" id="pinnedList"></div>
+  </section>
 
+  <section data-module="top" class="sidebar-module">
   <div class="sec-head" data-i18n>sec_recent_top</div>
   <div class="folder-list recent-top-list" id="recentTopList"></div>
+  </section>
 
+  <section data-module="bar" class="sidebar-module">
   <div class="sec-head" data-i18n>sec_bar</div>
   <div class="folder-list" id="folderNav"></div>
+  </section>
 
+  <section data-module="other" class="sidebar-module">
   <div class="sec-head" id="otherHead" data-i18n hidden>sec_other</div>
   <div class="folder-list" id="otherNav" hidden></div>
+  </section>
+  </div>
 
   <div class="sec-head sec-hidden" id="hiddenHead" hidden>
     <span data-i18n>sec_hidden</span>
@@ -63,7 +78,7 @@
     </div>
     <div class="searchbox">
       <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search" data-i18n-placeholder="search_placeholder" autocomplete="off" spellcheck="false">
+      <input type="text" id="search" data-i18n-placeholder="search_placeholder" data-i18n-aria="search_placeholder" role="combobox" aria-autocomplete="list" aria-controls="searchSuggestions" aria-expanded="false" autocomplete="off" spellcheck="false">
       <kbd class="search-kbd">⌘K</kbd>
       <div class="search-suggestions" id="searchSuggestions" role="listbox" hidden></div>
     </div>
@@ -84,7 +99,7 @@
 
 <!-- ===== Settings Drawer ===== -->
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
-<aside class="drawer" id="drawer">
+<aside class="drawer" id="drawer" inert>
   <div class="drawer-head">
     <h2 class="drawer-title" data-i18n>settings</h2>
     <button class="icon-btn" id="drawerClose" data-i18n-title="close" aria-label="Close settings">
@@ -131,6 +146,9 @@
       </div>
     </div>
 
+    <div class="drawer-group" id="appearanceControls"></div>
+    <div class="drawer-group" id="moduleControls"></div>
+
     <div class="drawer-group">
       <h3 class="drawer-group-title" data-i18n>settings_search</h3>
 
@@ -163,17 +181,6 @@
 
     <div class="drawer-group">
       <h3 class="drawer-group-title" data-i18n>settings_behavior</h3>
-
-      <div class="drawer-row">
-        <div class="drawer-row-info">
-          <span class="drawer-row-label" data-i18n>settings_show_clock</span>
-          <span class="drawer-row-desc" data-i18n>settings_show_clock_desc</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="showClockCb" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
       <div class="drawer-row">
         <div class="drawer-row-info">
@@ -213,10 +220,24 @@
   </div>
 </aside>
 
+<dialog class="bookmark-editor" id="bookmarkEditor" aria-labelledby="editorTitle">
+  <form id="bookmarkForm">
+    <div class="editor-head"><h2 id="editorTitle" data-i18n>edit_bookmark</h2><button type="button" class="icon-btn" id="editorClose" data-i18n-aria="close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="editor-fields">
+      <label for="bookmarkName" data-i18n>bookmark_name</label><input id="bookmarkName" type="text" maxlength="500" required>
+      <label for="bookmarkUrl" data-i18n>bookmark_url</label><input id="bookmarkUrl" type="url" required>
+      <label for="bookmarkFolder" data-i18n>bookmark_folder</label><select id="bookmarkFolder"></select>
+      <p class="editor-error" id="editorError" role="alert" hidden></p>
+    </div>
+    <div class="editor-actions"><button type="button" class="text-button" id="editorCancel" data-i18n>cancel</button><button type="submit" class="primary-button" id="editorSave" data-i18n>save_bookmark</button></div>
+  </form>
+</dialog>
+
 <button class="scroll-top" id="scrollTop" aria-label="Back to top">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
+<script src="preferences.js"></script>
 <script src="newtab.js"></script>
 </body>
 </html>

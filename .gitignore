@@ -1,3 +1,6 @@
 nookmark.zip
 *.zip.tmp
 .DS_Store
+nookmark.crx
+*.pem
+.extension-signing/

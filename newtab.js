@@ -119,7 +119,7 @@ const grid = $('grid'), searchEl = $('search'), clockEl = $('clock'),
   settingsBtn = $('settingsBtn'), drawer = $('drawer'), backdrop = $('drawerBackdrop'),
   drawerClose = $('drawerClose'), langSelect = $('langSelect'), themeSelect = $('themeSelect'),
   densitySelect = $('densitySelect'), engineSelect = $('engineSelect'),
-  showClockCb = $('showClockCb'), showSecondsCb = $('showSecondsCb'), clockRollCb = $('clockRollCb'),
+  showSecondsCb = $('showSecondsCb'), clockRollCb = $('clockRollCb'),
   openNewTabCb = $('openNewTabCb'), searchOtherCb = $('searchOtherCb'),
   drawerSaved = $('drawerSaved'),
   sidebar = $('sidebar'), sidebarBackdrop = $('sidebarBackdrop'), navToggle = $('navToggle'),
@@ -151,22 +151,39 @@ let settings = {
 const systemMQ = window.matchMedia('(prefers-color-scheme: dark)');
 
 // ===== Mock (file:// 预览用；扩展环境中 chrome 真实存在) =====
-const HAS_CHROME = typeof chrome !== 'undefined' && chrome.bookmarks && chrome.storage;
+const HAS_CHROME = Boolean(typeof chrome !== 'undefined' && chrome.bookmarks && chrome.storage);
 function ensureMock() {
   if (HAS_CHROME) return;
-  const mem = { sync: {}, local: {} };
-  const wrap = (store) => ({
+  let mem;
+  try { mem = JSON.parse(localStorage.getItem('nookmark-preview-storage')) || { sync: {}, local: {} }; } catch { mem = { sync: {}, local: {} }; }
+  const storageListeners = new Set();
+  const wrap = (store, area) => ({
     get: async (keys) => {
       const out = {};
-      for (const k of (Array.isArray(keys) ? keys : [keys])) if (k in store) out[k] = store[k];
+      for (const k of (keys == null ? Object.keys(store) : Array.isArray(keys) ? keys : [keys])) if (k in store) out[k] = store[k];
       return out;
     },
-    set: async (obj) => { Object.assign(store, obj); },
+    set: async (obj) => {
+      const changes = {};
+      for (const [key, value] of Object.entries(obj)) {
+        if (JSON.stringify(store[key]) === JSON.stringify(value)) continue;
+        changes[key] = { oldValue: store[key], newValue: structuredClone(value) };
+      }
+      Object.assign(store, structuredClone(obj));
+      localStorage.setItem('nookmark-preview-storage', JSON.stringify(mem));
+      queueMicrotask(() => { for (const listener of storageListeners) listener(changes, area); });
+    },
+    remove: async keys => {
+      const changes = {};
+      for (const key of Array.isArray(keys) ? keys : [keys]) { changes[key] = { oldValue: store[key] }; delete store[key]; }
+      localStorage.setItem('nookmark-preview-storage', JSON.stringify(mem));
+      queueMicrotask(() => { for (const listener of storageListeners) listener(changes, area); });
+    },
   });
   const F = (dateOffset) => Date.now() - dateOffset * 86400000;
   const BM = (id, title, url, d) => ({ id, title, url, dateAdded: F(d) });
   window.chrome = {
-    storage: { sync: wrap(mem.sync), local: wrap(mem.local), onChanged: { addListener() {} } },
+    storage: { sync: wrap(mem.sync, 'sync'), local: wrap(mem.local, 'local'), onChanged: { addListener: listener => storageListeners.add(listener) } },
     runtime: { getURL: (p) => location.href.replace(/[^/]*$/, p.replace(/^\//, '')) },
     bookmarks: {
       getTree: async () => [{
@@ -272,12 +289,15 @@ function ensureMock() {
 init();
 async function init() {
   ensureMock();
+  installPreferenceTranslations();
+  await preparePreviewBookmarks();
   await loadSettings();
   localizeHTML();
   startClock();
 
   try {
     const tree = await chrome.bookmarks.getTree();
+    indexBookmarkTree(tree);
     const roots = findRoots(tree);
     if (roots.bar?.children) {
       parseLevel(roots.bar.children, 'bar');
@@ -294,9 +314,13 @@ async function init() {
 
   cleanupFolderOrder();
   await loadHidden();
+  await loadPreferences();
 
   render();
   bindEvents();
+  bindPreferenceEvents();
+  bindBookmarkChanges();
+  document.documentElement.dataset.ready = 'true';
 }
 
 // ===== Bookmarks parsing =====
@@ -369,7 +393,7 @@ function applyFolderOrder() {
 const echoGuard = new Set();
 function guardedSet(obj) {
   Object.keys(obj).forEach(k => echoGuard.add(k));
-  chrome.storage.sync.set(obj);
+  (async () => { try { await chrome.storage.sync.set(obj); } catch { featureNotice('storage_failed'); } })();
   setTimeout(() => Object.keys(obj).forEach(k => echoGuard.delete(k)), 600);
 }
 // 拖拽落点后按当前 DOM 顺序持久化（不触发整页重渲染）
@@ -384,6 +408,7 @@ function persistOrderFromDOM() {
 let undoOrder = null;
 let undoTimer = 0;
 function showOrderUndo(previousOrder) {
+  removedBookmark = null;
   undoOrder = previousOrder;
   undoText.textContent = t('order_saved');
   undoToast.hidden = false;
@@ -437,7 +462,7 @@ function bumpCount(url) {
     entries.sort((a, b) => b[1] - a[1]);
     clickCounts = Object.fromEntries(entries.slice(0, 1500));
   }
-  chrome.storage.local.set({ clickCounts, recentClicks });
+  (async () => { try { await chrome.storage.local.set({ clickCounts, recentClicks }); } catch { featureNotice('storage_failed'); } })();
 }
 function localDay(time) {
   const d = new Date(time);
@@ -477,10 +502,12 @@ function totalVisible() {
 function render(skipAnim = false) {
   applyFolderOrder();
   const q = state.query.trim().toLowerCase();
+  grid.classList.toggle('search-results', !!q);
   updateNav();
   if (q) renderSearch(q, skipAnim);
   else if (state.view === 'all') renderAll(skipAnim);
   else if (state.view === 'recent') renderRecent();
+  else if (state.view === 'duplicates') renderDuplicates();
   else if (state.view.startsWith('folder:')) renderFolder(state.view.slice(7), skipAnim);
   dragHint.hidden = state.view !== 'all' || !!q || visibleGroups().length < 2;
   if (skipAnim) { grid.classList.add('skip-anim'); setTimeout(() => grid.classList.remove('skip-anim'), 60); }
@@ -508,7 +535,7 @@ function cardHTML({ hue, name, count, folderId, cls = '', hideable, body }) {
 function pillHTML(bm, from) {
   const d = extractDomain(bm.url), fl = d.slice(0, 2).toUpperCase();
   const tip = (from ? from + ' — ' : '') + bm.title + '\n' + bm.url;
-  return `<a class="pill" href="${escapeAttr(bm.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(bm.url)}" title="${escapeAttr(tip)}"><img class="bm-favicon" src="${escapeAttr(faviconSrc(bm.url))}" alt="" loading="lazy" data-domain="${escapeAttr(d)}" data-url="${escapeAttr(bm.url)}"><span class="bm-fallback">${escapeHTML(fl)}</span><span class="bm-name">${escapeHTML(bm.title) || escapeHTML(d)}</span></a>`;
+  return `<a class="pill" href="${escapeAttr(bm.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(bm.url)}" data-bid="${escapeAttr(bm.id)}" title="${escapeAttr(tip)}"><img class="bm-favicon" src="${escapeAttr(faviconSrc(bm.url))}" alt="" loading="lazy" data-domain="${escapeAttr(d)}" data-url="${escapeAttr(bm.url)}"><span class="bm-fallback">${escapeHTML(fl)}</span><span class="bm-name">${escapeHTML(bm.title) || escapeHTML(d)}</span></a>`;
 }
 
 const CAP = 24;
@@ -576,6 +603,7 @@ function springTick() {
   else springLast = 0;
 }
 function springShift(el, dx, dy) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   // 布局跳变了 dx/dy：视觉上先留在原地，弹簧归位；已有弹簧则合并位移、保留动量。
   // 必须同步写 transform（与 DOM 变更同一任务）——否则节流环境下卡片会先画在新位置再弹回，
   // 看起来就是瞬移 + 弹簧失效。
@@ -590,6 +618,7 @@ function springShift(el, dx, dy) {
   if (!springTimer) { springLast = 0; springTimer = setTimeout(springTick, FRAME_MS); }
 }
 function springFrom(el, x, y, s = 1) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.style.transform = ''; return; }
   // 以给定视觉偏移启动弹簧（拖拽松手时从指针位置弹回槽位）
   springs.set(el, { x, y, s, vx: 0, vy: 0, vs: 0 });
   el.classList.add('springing');
@@ -614,6 +643,8 @@ function toggleCardExpand(fid) {
   const wasExpanded = expandedCards.has(fid);
   wasExpanded ? expandedCards.delete(fid) : expandedCards.add(fid);
   animMove(grid, () => applyClamp(card, wasExpanded));
+  card.classList.toggle('clamped', wasExpanded);
+  saveLayoutMemory();
 }
 function subHTML(sf) {
   const collapsed = collapsedSubs.has(sf.folderId);
@@ -621,7 +652,7 @@ function subHTML(sf) {
   const pills = sf.bookmarks.map(b => pillHTML(b, sf.folderName)).join('');
   const nested = sf.subfolders.map(s2 => subHTML(s2)).join(' ');
   return `<div class="subgroup${collapsed ? ' collapsed' : ''}" data-sfid="${escapeAttr(sf.folderId)}">
-    <button class="sub-head"><svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg><span class="sub-name">${escapeHTML(sf.folderName)}</span><span class="sub-count">${n}</span></button>
+    <button class="sub-head" aria-expanded="${!collapsed}"><svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg><span class="sub-name">${escapeHTML(sf.folderName)}</span><span class="sub-count">${n}</span></button>
     <div class="sub-body">${pills}${nested}</div>
   </div>`;
 }
@@ -692,6 +723,7 @@ let suggestionIndex = -1;
 function showSuggestions() {
   const q = searchEl.value.trim().toLowerCase();
   suggestionIndex = -1;
+  searchEl.removeAttribute('aria-activedescendant');
   if (!q || document.activeElement !== searchEl) { searchSuggestions.hidden = true; return; }
   const seen = new Set();
   const hits = searchMatches(q).filter(({ b }) => {
@@ -700,15 +732,17 @@ function showSuggestions() {
     return true;
   }).slice(0, 8);
   searchSuggestions.innerHTML = hits.length
-    ? hits.map(({ b }) => `<a class="suggestion" role="option" href="${escapeAttr(b.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(b.url)}"><span class="suggestion-name">${escapeHTML(b.title || extractDomain(b.url))}</span><span class="suggestion-domain">${escapeHTML(extractDomain(b.url))}</span></a>`).join('')
-    : `<div class="suggestion-empty">${t('no_results_title')}</div><a class="suggestion-web" href="${escapeAttr(webSearchUrl(searchEl.value.trim()))}"><span>${t('search_press_enter')} ${escapeHTML(selectedEngine().label)} ${settings.lang === 'zh' ? '搜索网页' : 'the web'}</span><kbd>Enter</kbd></a>`;
+    ? hits.map(({ b }, i) => `<a id="suggestion-${i}" class="suggestion" role="option" aria-selected="false" href="${escapeAttr(b.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(b.url)}" data-bid="${escapeAttr(b.id)}"><span class="suggestion-name">${escapeHTML(b.title || extractDomain(b.url))}</span><span class="suggestion-domain">${escapeHTML(extractDomain(b.url))}</span></a>`).join('')
+    : `<div class="suggestion-empty">${t('no_results_title')}</div><a class="suggestion-web" href="${escapeAttr(webSearchUrl(searchEl.value.trim()))}">${engineIconHTML()}<span>${t('search_press_enter')} ${escapeHTML(selectedEngine().label)} ${settings.lang === 'zh' ? '搜索网页' : 'the web'}</span><kbd>Enter</kbd></a>`;
   searchSuggestions.hidden = false;
+  searchEl.setAttribute('aria-expanded', 'true');
 }
 function moveSuggestion(step) {
   const items = [...searchSuggestions.querySelectorAll('a.suggestion')];
   if (!items.length) return;
   suggestionIndex = (suggestionIndex + step + items.length) % items.length;
-  items.forEach((item, i) => item.classList.toggle('active', i === suggestionIndex));
+  items.forEach((item, i) => { item.classList.toggle('active', i === suggestionIndex); item.setAttribute('aria-selected', String(i === suggestionIndex)); });
+  searchEl.setAttribute('aria-activedescendant', items[suggestionIndex].id);
   items[suggestionIndex].scrollIntoView({ block: 'nearest' });
 }
 function renderSearch(q, skipAnim) {
@@ -717,7 +751,7 @@ function renderSearch(q, skipAnim) {
   viewTitleEl.textContent = t('results_title');
   viewCountEl.textContent = `· ${hits.length}`;
   if (!hits.length) {
-    grid.innerHTML = `<div class="state-hint"><span class="hint-icon">🔍</span>${t('no_results_title')} “${escapeHTML(state.query.trim())}”<br><br><a href="${escapeAttr(webSearchUrl(state.query.trim()))}" target="_self">${t('search_web_with')} ${escapeHTML(eng.label)} ${settings.lang === 'zh' ? '搜索' : 'to search for'} “${escapeHTML(state.query.trim())}” →</a></div>`;
+    grid.innerHTML = `<div class="state-hint"><span class="hint-icon">🔍</span>${t('no_results_title')} “${escapeHTML(state.query.trim())}”<br><br><a href="${escapeAttr(webSearchUrl(state.query.trim()))}" target="_self" class="empty-web-link">${engineIconHTML()}${t('search_web_with')} ${escapeHTML(eng.label)} ${settings.lang === 'zh' ? '搜索' : 'to search for'} “${escapeHTML(state.query.trim())}” →</a></div>`;
     return;
   }
   const shown = hits.slice(0, 60);
@@ -763,11 +797,13 @@ function updateNav() {
   }
 
   renderHiddenSection();
+  applyModules();
+  updateDuplicateCount();
   observeFavicons();
 }
 function pillMiniHTML(b) {
   const d = extractDomain(b.url);
-  return `<a class="pill pill-mini" href="${escapeAttr(b.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(b.url)}" title="${escapeAttr(b.title)}&#10;${escapeAttr(b.url)}"><img class="bm-favicon" src="${escapeAttr(faviconSrc(b.url))}" alt="" loading="lazy" data-domain="${escapeAttr(d)}" data-url="${escapeAttr(b.url)}"><span class="bm-fallback">${escapeHTML(d.slice(0, 2).toUpperCase())}</span><span class="bm-name">${escapeHTML(b.title) || escapeHTML(d)}</span></a>`;
+  return `<a class="pill pill-mini" href="${escapeAttr(b.url)}" target="${linkTarget()}" rel="noopener noreferrer" data-url="${escapeAttr(b.url)}" data-bid="${escapeAttr(b.id)}" title="${escapeAttr(b.title)}&#10;${escapeAttr(b.url)}"><img class="bm-favicon" src="${escapeAttr(faviconSrc(b.url))}" alt="" loading="lazy" data-domain="${escapeAttr(d)}" data-url="${escapeAttr(b.url)}"><span class="bm-fallback">${escapeHTML(d.slice(0, 2).toUpperCase())}</span><span class="bm-name">${escapeHTML(b.title) || escapeHTML(d)}</span></a>`;
 }
 
 function renderHiddenSection() {
@@ -778,7 +814,7 @@ function renderHiddenSection() {
   hiddenList.innerHTML = hidden.map(g => {
     const n = countAll(g);
     const mini = flattenFolder(g).slice(0, 20).map(b => pillMiniHTML(b)).join('');
-    return `<div class="h-item-wrap" data-fid="${escapeAttr(g.folderId)}">
+    return `<div class="h-item-wrap${expandedHidden.has(g.folderId) ? ' expanded' : ''}" data-fid="${escapeAttr(g.folderId)}">
       <div class="h-item"><svg class="h-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg><span class="h-name">${escapeHTML(g.folderName)}</span><span class="f-count">${n}</span><button class="h-restore" data-restore-id="${escapeAttr(g.folderId)}" title="${t('sidebar_restore')}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button></div>
       <div class="h-body">${mini || `<span class="h-empty">${t('sidebar_no_bookmarks')}</span>`}</div>
     </div>`;
@@ -876,7 +912,6 @@ async function loadSettings() {
   densitySelect.value = settings.density;
   engineSelect.value = settings.engine;
   searchOtherCb.checked = settings.searchOther;
-  showClockCb.checked = settings.showClock;
   showSecondsCb.checked = settings.showSeconds;
   clockRollCb.checked = settings.clockRoll;
   openNewTabCb.checked = settings.openInNewTab;
@@ -894,15 +929,15 @@ async function loadSettings() {
 }
 function applyLang(lang) { settings.lang = lang; document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'; document.title = t('tab_title'); updateClock._lm = null; updateClock(); }
 function resolveTheme() { return settings.theme === 'system' ? (systemMQ.matches ? 'dark' : 'light') : settings.theme; }
-function applyTheme() { document.body.setAttribute('data-theme', resolveTheme()); }
+function applyTheme() { document.body.setAttribute('data-theme', resolveTheme()); applyAppearance(); }
 function applyDensity() { document.body.setAttribute('data-density', settings.density); }
 function onSystemThemeChange() { if (settings.theme === 'system') applyTheme(); }
 systemMQ.addEventListener('change', onSystemThemeChange);
 
 let saveTimer = null;
-function saveAndFlash() {
+async function saveAndFlash() {
   clearTimeout(saveTimer);
-  chrome.storage.sync.set(settings);
+  try { await chrome.storage.sync.set(settings); } catch { featureNotice('storage_failed'); return; }
   drawerSaved.textContent = t('saved');
   drawerSaved.classList.add('flash');
   saveTimer = setTimeout(() => drawerSaved.classList.remove('flash'), 1200);
@@ -910,15 +945,15 @@ function saveAndFlash() {
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync') {
-    if (changes.lang) { applyLang(changes.lang.newValue); localizeHTML(); render(true); }
+    if (changes.lang) { langSelect.value = changes.lang.newValue; applyLang(changes.lang.newValue); localizeHTML(); render(true); }
     if (changes.theme) { settings.theme = changes.theme.newValue; themeSelect.value = settings.theme; applyTheme(); }
     if (changes.density) { settings.density = changes.density.newValue; densitySelect.value = settings.density; applyDensity(); }
     if (changes.engine) { settings.engine = changes.engine.newValue; engineSelect.value = settings.engine; if (state.query.trim()) { render(true); showSuggestions(); } }
-    if (changes.searchOther) { settings.searchOther = changes.searchOther.newValue; searchOtherCb.checked = settings.searchOther; }
-    if (changes.showClock) { settings.showClock = changes.showClock.newValue; showClockCb.checked = settings.showClock; }
+    if (changes.searchOther) { settings.searchOther = changes.searchOther.newValue; searchOtherCb.checked = settings.searchOther; if (state.query.trim()) { render(true); showSuggestions(); } }
+    if (changes.showClock) { settings.showClock = changes.showClock.newValue; applyModules(); renderModuleControls(); }
     if (changes.showSeconds) { settings.showSeconds = changes.showSeconds.newValue; showSecondsCb.checked = settings.showSeconds; updateClock._init = false; updateClock(); }
     if (changes.clockRoll) { settings.clockRoll = changes.clockRoll.newValue; clockRollCb.checked = settings.clockRoll; }
-    if (changes.openInNewTab) { settings.openInNewTab = changes.openInNewTab.newValue; openNewTabCb.checked = settings.openInNewTab; }
+    if (changes.openInNewTab) { settings.openInNewTab = changes.openInNewTab.newValue; openNewTabCb.checked = settings.openInNewTab; render(true); }
     if (changes.hiddenFolderIds) { hiddenFolderIds = new Set(changes.hiddenFolderIds.newValue || []); if (!echoGuard.has('hiddenFolderIds')) render(true); }
     if (changes.folderOrder) { folderOrder = changes.folderOrder.newValue || []; if (!echoGuard.has('folderOrder')) { applyFolderOrder(); render(true); } }
     if (changes.pinnedUrls) { pinnedUrls = changes.pinnedUrls.newValue || []; if (!echoGuard.has('pinnedUrls')) updateNav(); }
@@ -944,18 +979,20 @@ function localizeHTML() {
     el.textContent = t(key);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  localizePreferenceUI();
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
 }
 
 // ===== Drawer =====
-function openDrawer() { drawer.classList.add('open'); backdrop.classList.add('open'); }
-function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); }
+function openDrawer() { drawer.classList.add('open'); backdrop.classList.add('open'); drawer.inert = false; drawerClose.focus(); }
+function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); drawer.inert = true; settingsBtn.focus(); }
 function closeSidebarMobile() {
   if (window.innerWidth <= 1080) { sidebar.classList.remove('open'); sidebarBackdrop.classList.remove('open'); }
 }
 
 // ===== Keyboard =====
-function focusSearch() { searchEl.focus(); searchEl.select(); }
+function focusSearch() { if (drawer.classList.contains('open')) closeDrawer(); searchEl.focus(); searchEl.select(); }
 
 // ===== Events =====
 function bindEvents() {
@@ -1009,6 +1046,7 @@ function bindEvents() {
     if (context.kind === 'link') return [
       ['open', 'menu_open'], ['open-new', 'menu_open_new'], ['copy-link', 'menu_copy_link'],
       null, [pinnedUrls.includes(context.url) ? 'unpin' : 'pin', pinnedUrls.includes(context.url) ? 'unpin' : 'pin'],
+      ['edit-bookmark', 'edit_bookmark'], ['move-bookmark', 'move_bookmark'],
       ['search', 'menu_search'],
     ];
     if (context.kind === 'folder') return [
@@ -1018,8 +1056,8 @@ function bindEvents() {
     ];
     if (context.kind === 'input') return [
       ['cut', 'menu_cut'], ['copy', 'menu_copy'], ['paste', 'menu_paste'],
-      null, ['select-all', 'menu_select_all'], ['clear-search', 'menu_clear_search'],
-      null, ['all', 'menu_all'], ['settings', 'menu_settings'],
+      null, ['select-all', 'menu_select_all'], ...(context.input === searchEl ? [['clear-search', 'menu_clear_search']] : []),
+      ...(context.input === searchEl ? [null, ['all', 'menu_all'], ['settings', 'menu_settings']] : []),
     ];
     return [
       ...(context.selection ? [['copy-selection', 'menu_copy_text'], null] : []),
@@ -1029,6 +1067,8 @@ function bindEvents() {
   }
   function menuIcon(action) {
     const paths = {
+      'edit-bookmark': '<path d="m15 4 5 5-11 11H4v-5zM13 6l5 5"/>',
+      'move-bookmark': '<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8 13h8m-3-3 3 3-3 3"/>',
       open: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
       'open-new': '<path d="M13 5h6v6m0-6-8 8"/><path d="M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
       'copy-link': '<path d="M10 13a4 4 0 0 0 6 .3l2.5-2.5a4 4 0 0 0-5.7-5.6l-1.4 1.4"/><path d="M14 11a4 4 0 0 0-6-.3l-2.5 2.5a4 4 0 0 0 5.7 5.6l1.4-1.4"/>',
@@ -1053,17 +1093,19 @@ function bindEvents() {
   }
   document.addEventListener('contextmenu', (e) => {
     e.preventDefault();
+    if (editorPending) return;
     const link = e.target.closest('a[data-url]');
     const folder = e.target.closest('.card[data-folder-id], .f-item[data-fid], .h-item-wrap[data-fid]');
-    const input = e.target.closest('input, textarea, [contenteditable="true"]');
-    if (link && urlMap.has(link.dataset.url)) {
-      menuContext = { kind: 'link', url: link.dataset.url, title: urlMap.get(link.dataset.url).title || extractDomain(link.dataset.url) };
+    const input = e.target.closest('input[type="text"], input[type="url"], input:not([type]), textarea');
+    if (link && (bookmarkNodes.has(link.dataset.bid) || urlMap.has(link.dataset.url))) {
+      const bookmark = bookmarkNodes.get(link.dataset.bid) || urlMap.get(link.dataset.url);
+      menuContext = { kind: 'link', bid: bookmark.id, url: bookmark.url, title: bookmark.title || extractDomain(bookmark.url) };
     } else if (folder) {
       const fid = folder.dataset.folderId || folder.dataset.fid;
       const group = [...allGroups, ...otherGroups].find(item => item.folderId === fid);
       menuContext = group ? { kind: 'folder', fid, title: group.folderName } : { kind: 'page', title: t('menu_page') };
     } else if (input) {
-      menuContext = { kind: 'input', title: t('menu_input'), start: searchEl.selectionStart, end: searchEl.selectionEnd };
+      menuContext = { kind: 'input', input, title: input === searchEl ? t('menu_input') : t('menu_text_input'), start: input.selectionStart || 0, end: input.selectionEnd || 0 };
     } else {
       menuContext = { kind: 'page', title: t('menu_page'), selection: window.getSelection()?.toString().trim() || '' };
     }
@@ -1079,7 +1121,7 @@ function bindEvents() {
     linkMenu.style.top = `${Math.max(8, Math.min(e.clientY, window.innerHeight - height - 8))}px`;
     requestAnimationFrame(() => { linkMenu.classList.add('open'); linkMenu.querySelector('button')?.focus({ preventScroll: true }); });
   });
-  linkMenu.addEventListener('click', (e) => {
+  linkMenu.addEventListener('click', async (e) => {
     const action = e.target.closest('[data-menu-action]')?.dataset.menuAction;
     if (!action || !menuContext) return;
     const context = menuContext;
@@ -1088,26 +1130,29 @@ function bindEvents() {
     else if (action === 'open-new') { bumpCount(context.url); window.open(context.url, '_blank', 'noopener,noreferrer'); }
     else if (action === 'copy-link') copyText(context.url);
     else if (action === 'copy-selection') copyText(context.selection);
-    else if (action === 'copy') copyText(searchEl.value.slice(context.start, context.end));
-    else if (action === 'cut') copyText(searchEl.value.slice(context.start, context.end)).then(copied => {
-      if (copied) { searchEl.setRangeText('', context.start, context.end, 'start'); searchEl.dispatchEvent(new Event('input', { bubbles: true })); }
-    });
-    else if (action === 'paste') {
-      if (!navigator.clipboard?.readText) showNotice('menu_copy_failed');
-      else navigator.clipboard.readText().then(value => {
-        searchEl.setRangeText(value, context.start, context.end, 'end');
-        searchEl.dispatchEvent(new Event('input', { bubbles: true }));
-      }).catch(() => showNotice('menu_copy_failed'));
+    else if (action === 'copy') await copyText(context.input.value.slice(context.start, context.end));
+    else if (action === 'cut') {
+      if (await copyText(context.input.value.slice(context.start, context.end))) {
+        context.input.setRangeText('', context.start, context.end, 'start');
+        context.input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } else if (action === 'paste') {
+      try {
+        const value = await navigator.clipboard.readText();
+        context.input.setRangeText(value, context.start, context.end, 'end');
+        context.input.dispatchEvent(new Event('input', { bubbles: true }));
+      } catch { showNotice('menu_copy_failed'); }
     }
-    else if (action === 'pin' || action === 'unpin') togglePin(context.url);
+    else if (action === 'edit-bookmark' || action === 'move-bookmark') openBookmarkEditor(context.bid, action === 'move-bookmark');
+    else if (action === 'pin' || action === 'unpin') { togglePin(context.url); showNotice(action === 'pin' ? 'bookmark_pinned' : 'bookmark_unpinned'); }
     else if (action === 'show-folder') { state.query = ''; searchEl.value = ''; searchEl.parentElement.classList.remove('has-query'); searchSuggestions.hidden = true; setView('folder:' + context.fid); }
-    else if (action === 'hide-folder') hideFolder(context.fid);
-    else if (action === 'restore-folder') restoreFolder(context.fid);
+    else if (action === 'hide-folder') { hideFolder(context.fid); showNotice('folder_hidden'); }
+    else if (action === 'restore-folder') { restoreFolder(context.fid); showNotice('folder_restored'); }
     else if (action === 'search') focusSearch();
-    else if (action === 'select-all') { searchEl.focus(); searchEl.select(); }
+    else if (action === 'select-all') { context.input.focus(); context.input.select(); }
     else if (action === 'clear-search') { searchEl.value = ''; state.query = ''; searchSuggestions.hidden = true; searchEl.parentElement.classList.remove('has-query'); render(true); searchEl.focus(); }
     else if (action === 'all') { state.query = ''; searchEl.value = ''; searchEl.parentElement.classList.remove('has-query'); searchSuggestions.hidden = true; setView('all'); }
-    else if (action === 'settings') openDrawer();
+    else if (action === 'settings') { if ($('bookmarkEditor').open) $('bookmarkEditor').close(); openDrawer(); }
     else if (action === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
     else if (action === 'reload') location.reload();
   });
@@ -1124,7 +1169,8 @@ function bindEvents() {
   });
   window.addEventListener('scroll', closeMenu, { passive: true });
 
-  undoButton.addEventListener('click', () => {
+  undoButton.addEventListener('click', async () => {
+    if (await undoRemovedBookmark()) return;
     if (!undoOrder) return;
     folderOrder = undoOrder;
     undoOrder = null;
@@ -1138,8 +1184,14 @@ function bindEvents() {
   hiddenList.addEventListener('click', (e) => {
     const rb = e.target.closest('[data-restore-id]');
     if (rb) { e.stopPropagation(); restoreFolder(rb.dataset.restoreId); return; }
+    const mini = e.target.closest('a.pill-mini');
+    if (mini) { bumpCount(mini.dataset.url); return; }
     const hd = e.target.closest('.h-item');
-    if (hd) hd.closest('.h-item-wrap')?.classList.toggle('expanded');
+    if (hd) {
+      const wrap = hd.closest('.h-item-wrap');
+      wrap.classList.toggle('expanded') ? expandedHidden.add(wrap.dataset.fid) : expandedHidden.delete(wrap.dataset.fid);
+      saveLayoutMemory();
+    }
   });
 
   // 卡片区：点击（药丸计数 / 展开 / 隐藏 / 子分组折叠）
@@ -1157,7 +1209,9 @@ function bindEvents() {
       animMove(grid, () => {
         const collapsed = sg.classList.toggle('collapsed');
         collapsed ? collapsedSubs.add(fid) : collapsedSubs.delete(fid);
+        sub.setAttribute('aria-expanded', String(!collapsed));
       });
+      saveLayoutMemory();
     }
   });
 
@@ -1173,6 +1227,7 @@ function bindEvents() {
     if (drag) return;
     if (e.button !== 0) return;
     if (e.target.closest('a, button')) return; // 药丸/按钮照常点击，不发起拖拽
+    if (state.view !== 'all' || state.query.trim() || !e.target.closest('.card-head')) return;
     const card = e.target.closest('.card');
     if (!card?.dataset.folderId) return;
     if (grid.querySelectorAll('.card[data-folder-id]').length < 2) return;
@@ -1279,7 +1334,7 @@ function bindEvents() {
     if (!d.active) return; // 未超过阈值 = 普通点击
     const card = d.card;
     card.classList.remove('drag-lift');
-    if (e.type === 'pointercancel') { card.style.transform = ''; return; }
+    if (e.type === 'pointercancel') { card.style.transform = ''; folderOrder = d.previousOrder; render(true); return; }
     if (d.overHidden) { card.style.transform = ''; hideFolder(card.dataset.folderId); return; }
     // 松手：从当前指针位置弹簧归位（带轻微回弹）
     springFrom(card, d.tx, d.ty);
@@ -1321,8 +1376,9 @@ function bindEvents() {
     }
   });
   document.addEventListener('keydown', (e) => {
+    if ($('bookmarkEditor').open) return;
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); focusSearch(); }
-    else if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) { e.preventDefault(); focusSearch(); }
+    else if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) && !$('bookmarkEditor').open) { e.preventDefault(); focusSearch(); }
   });
 
   // 设置抽屉
@@ -1333,8 +1389,7 @@ function bindEvents() {
   themeSelect.addEventListener('change', () => { settings.theme = themeSelect.value; applyTheme(); saveAndFlash(); });
   densitySelect.addEventListener('change', () => { settings.density = densitySelect.value; applyDensity(); saveAndFlash(); });
   engineSelect.addEventListener('change', () => { settings.engine = engineSelect.value; saveAndFlash(); if (state.query.trim()) { render(true); showSuggestions(); } });
-  searchOtherCb.addEventListener('change', () => { settings.searchOther = searchOtherCb.checked; saveAndFlash(); });
-  showClockCb.addEventListener('change', () => { settings.showClock = showClockCb.checked; saveAndFlash(); });
+  searchOtherCb.addEventListener('change', () => { settings.searchOther = searchOtherCb.checked; saveAndFlash(); if (state.query.trim()) { render(true); showSuggestions(); } });
   showSecondsCb.addEventListener('change', () => { settings.showSeconds = showSecondsCb.checked; updateClock._init = false; saveAndFlash(); });
   clockRollCb.addEventListener('change', () => { settings.clockRoll = clockRollCb.checked; saveAndFlash(); });
   openNewTabCb.addEventListener('change', () => { settings.openInNewTab = openNewTabCb.checked; saveAndFlash(); });

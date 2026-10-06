@@ -1,13 +1,10 @@
-/* ============================================================
-   Nookmark v2 — 淡彩档案馆
-   标题：金字社得正体 · 正文：思源宋体
-   布局：左侧栏 + 顶栏 + 瀑布流淡彩卡片（参考 Nooki 风格）
-   ============================================================ */
+/* Nookmark：标题使用未来荧黑，正文使用思源宋体。 */
 
-/* ===== Fonts (bundled, zero network) ===== */
+/* 字体随扩展打包，不依赖系统安装或网络。 */
 @font-face {
-  font-family: 'Dezheng';
-  src: url('fonts/dezheng.woff2') format('woff2');
+  font-family: 'Glow Sans SC';
+  src: url('fonts/glow-sans-sc-extrabold.woff2') format('woff2');
+  font-weight: 800;
   font-display: swap;
 }
 @font-face {
@@ -29,8 +26,8 @@
   --bg-side:   #f1eee7;
   --bg-surface:#fbfaf6;
   --text:      #33302a;
-  --text-2:    #7a7466;
-  --text-3:    #a8a191;
+  --text-2:    #665f52;
+  --text-3:    #71695b;
   --line:      #e5e1d6;
   --line-soft: #ece8de;
   --accent:    #a0522d;
@@ -59,8 +56,8 @@
   --bg-side:   #201e1a;
   --bg-surface:#262420;
   --text:      #e8e3d7;
-  --text-2:    #aaa392;
-  --text-3:    #807a6a;
+  --text-2:    #b4ae9e;
+  --text-3:    #aaa392;
   --line:      #34312a;
   --line-soft: #2c2a24;
   --accent:    #c98d5f;
@@ -93,7 +90,7 @@ body {
   transition: background 300ms ease, color 300ms ease;
 }
 
-.display { font-family: 'Dezheng', 'JinzisheDezheng', '金字社得正体', 'Source Serif Sub', 'Source Han Serif SC', serif; }
+.display { font-family: 'Glow Sans SC', 'Source Serif Sub', 'Source Han Serif SC', serif; }
 
 ::selection { background: var(--accent-soft); }
 
@@ -125,7 +122,7 @@ a { color: inherit; }
 
 .brand { padding: 0 10px 20px; border-bottom: 1px solid var(--line-soft); margin-bottom: 14px; }
 .brand-clock {
-  font-family: 'Dezheng', 'JinzisheDezheng', '金字社得正体', 'Source Serif Sub', serif;
+  font-family: 'Glow Sans SC', 'Source Serif Sub', serif;
   font-size: 2.35rem;
   line-height: 1.1;
   letter-spacing: 0.03em;
@@ -311,7 +308,7 @@ body.clock-hidden .brand-clock, body.clock-hidden .brand-greet { display: none; 
 .nav-toggle { display: none; }
 
 .view-title {
-  font-family: 'Dezheng', 'JinzisheDezheng', '金字社得正体', 'Source Serif Sub', serif;
+  font-family: 'Glow Sans SC', 'Source Serif Sub', serif;
   font-size: 1.55rem;
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -471,7 +468,7 @@ body.clock-hidden .brand-clock, body.clock-hidden .brand-greet { display: none; 
   background: var(--dot);
 }
 .card-name {
-  font-family: 'Dezheng', 'JinzisheDezheng', '金字社得正体', 'Source Serif Sub', serif;
+  font-family: 'Glow Sans SC', 'Source Serif Sub', serif;
   font-size: 1.06rem;
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -668,7 +665,7 @@ body.drag-active { cursor: grabbing; user-select: none; -webkit-user-select: non
   flex-shrink: 0;
 }
 .drawer-title {
-  font-family: 'Dezheng', 'JinzisheDezheng', '金字社得正体', 'Source Serif Sub', serif;
+  font-family: 'Glow Sans SC', 'Source Serif Sub', serif;
   font-size: 1.3rem;
   font-weight: 400;
 }
@@ -837,3 +834,120 @@ body.drag-active { cursor: grabbing; user-select: none; -webkit-user-select: non
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 外观设置沿用纸面材质，半透明仅用于让壁纸透出。 */
+body[data-palette="sage"] { --accent: #436453; --accent-soft: rgb(67 100 83 / 10%); --ring: 0 0 0 3px rgb(67 100 83 / 17%); }
+body[data-palette="ocean"] { --accent: #35627e; --accent-soft: rgb(53 98 126 / 10%); --ring: 0 0 0 3px rgb(53 98 126 / 17%); }
+body[data-palette="rose"] { --accent: #93536b; --accent-soft: rgb(147 83 107 / 10%); --ring: 0 0 0 3px rgb(147 83 107 / 17%); }
+body[data-theme="dark"][data-palette="sage"] { --accent: #a1c3af; --accent-soft: rgb(161 195 175 / 12%); }
+body[data-theme="dark"][data-palette="ocean"] { --accent: #9bc5e0; --accent-soft: rgb(155 197 224 / 12%); }
+body[data-theme="dark"][data-palette="rose"] { --accent: #dfafc0; --accent-soft: rgb(223 175 192 / 12%); }
+.wallpaper { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.wallpaper-image { position: absolute; inset: -30px; background-size: cover; background-repeat: no-repeat; }
+.wallpaper-shade { position: absolute; inset: 0; background: var(--bg); opacity: var(--wallpaper-overlay, .35); }
+body.has-wallpaper { background: transparent; isolation: isolate; }
+body.has-wallpaper .sidebar { background: color-mix(in srgb, var(--bg-side) 94%, transparent); }
+body.has-wallpaper .view-title { background: color-mix(in srgb, var(--bg) 94%, transparent); border-radius: 9px; padding: 7px 10px; }
+body.has-wallpaper .state-hint { background: color-mix(in srgb, var(--bg) 94%, transparent); border-radius: 14px; color: var(--text-2); }
+body[data-card-style="translucent"] .card { background: color-mix(in srgb, var(--card-bg) var(--card-opacity, 92%), transparent); backdrop-filter: blur(12px); }
+body[data-card-style="translucent"] .card .card-name { background: color-mix(in srgb, var(--card-bg) 85%, transparent); border-radius: 4px; }
+.sidebar-modules { display: flex; flex-direction: column; gap: 4px; }
+.sidebar-module { min-width: 0; }
+.sidebar-module .sec-head { margin-top: 16px; }
+.engine-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+.suggestion-web > span { flex: 1; }
+.empty-web-link { display: inline-flex; align-items: center; justify-content: center; gap: 9px; flex-wrap: wrap; max-width: 90%; }
+.drawer { width: 420px; }
+.drawer-group-title { color: var(--text-2); }
+.drawer-row-desc, .setting-note { color: var(--text-2); font-size: .73rem; line-height: 1.6; }
+.setting-note { margin: 8px 0 12px; }
+.appearance-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; font-size: .82rem; }
+.appearance-row input[type="color"] { width: 46px; height: 32px; padding: 3px; border: 1px solid var(--line); background: var(--bg-surface); border-radius: 7px; cursor: pointer; }
+.palette-choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin: 12px 0; }
+.palette-choice { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 8px 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-surface); cursor: pointer; font-size: .73rem; }
+.palette-choice[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.palette-swatch { display: block; width: 13px; height: 13px; border-radius: 50%; }
+.palette-amber { background: #a0522d; }
+.palette-sage { background: #436453; }
+.palette-ocean { background: #35627e; }
+.palette-rose { background: #93536b; }
+.wallpaper-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 5px 0 12px; }
+.wallpaper-preset { height: 76px; border: 2px solid transparent; border-radius: 9px; cursor: pointer; display: flex; align-items: end; justify-content: start; padding: 7px; transition: border-color var(--transition); }
+.wallpaper-preset[aria-pressed="true"] { border-color: var(--accent); }
+.wallpaper-preset span { border-radius: 4px; padding: 1px 6px; font-size: .7rem; background: rgb(251 250 246 / 92%); color: #33302a; }
+.preset-dawn { background: radial-gradient(ellipse at 12% 18%, #f3d1b0 0%, transparent 55%), linear-gradient(135deg, #e8dcc9, #efdce1 58%, #cdd9e7); }
+.preset-forest { background: radial-gradient(ellipse at 85% 20%, #bbcdbd 0%, transparent 60%), linear-gradient(145deg, #d9e3cf, #a6bbb1 55%, #718b87); }
+.preset-dusk { background: radial-gradient(ellipse at 18% 75%, #a56f73 0%, transparent 60%), linear-gradient(135deg, #293e55, #56627e 55%, #aa858a); }
+.upload-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.text-button, .primary-button { display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 32px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-surface); color: var(--text-2); font-family: inherit; font-size: .77rem; cursor: pointer; text-decoration: none; }
+.text-button:hover { color: var(--accent); border-color: var(--accent); }
+.primary-button { background: var(--accent); color: var(--bg-surface); border-color: var(--accent); }
+[data-theme="dark"] .primary-button { color: #1b1a17; }
+.primary-button:hover { filter: brightness(1.1); }
+button:disabled { cursor: default; opacity: .5; }
+.file-label { cursor: pointer; }
+.upload-actions:has(#wallpaperFile:focus-visible) .file-label { outline: 2px solid var(--accent); outline-offset: 3px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.range-control { padding: 9px 0; }
+.range-control label { display: flex; justify-content: space-between; gap: 12px; font-size: .78rem; color: var(--text-2); }
+.range-control output { font-variant-numeric: tabular-nums; }
+.range-control input { width: 100%; margin-top: 7px; accent-color: var(--accent); cursor: pointer; }
+.reset-appearance { margin-top: 12px; }
+.module-order { margin: 6px 0 12px; }
+.module-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; border-bottom: 1px solid var(--line-soft); }
+.module-label, .module-extra { display: flex; align-items: center; gap: 9px; font-size: .8rem; cursor: pointer; }
+.module-label input, .module-extra input { width: 15px; height: 15px; accent-color: var(--accent); }
+.module-extra { margin: 12px 0 4px; }
+.module-actions { display: flex; gap: 4px; }
+.module-arrow { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--bg-surface); border-radius: 7px; cursor: pointer; }
+.module-arrow svg { width: 14px; height: 14px; }
+.module-arrow:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.bookmark-editor { margin: auto; width: min(480px, calc(100vw - 28px)); max-height: calc(100dvh - 40px); overflow: auto; border: 1px solid var(--line); border-radius: 14px; color: var(--text); background: var(--bg-surface); box-shadow: 0 16px 48px rgb(0 0 0 / 22%); }
+.bookmark-editor::backdrop { background: rgb(20 20 17 / 40%); backdrop-filter: blur(3px); }
+.bookmark-editor[open] { animation: editorOpen 220ms cubic-bezier(.16, 1, .3, 1); }
+@keyframes editorOpen { from { transform: translateY(8px); filter: blur(1px); } to { transform: translateY(0); filter: blur(0); } }
+.editor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px 12px; }
+.editor-head h2 { font-size: 1.12rem; font-weight: 600; }
+.editor-fields { display: flex; flex-direction: column; gap: 6px; padding: 8px 22px; }
+.editor-fields label { margin-top: 9px; font-size: .78rem; color: var(--text-2); }
+.editor-fields input, .editor-fields select { width: 100%; min-height: 38px; border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; background: var(--bg); color: var(--text); font-family: inherit; font-size: .82rem; }
+.editor-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 18px 22px 22px; }
+.editor-error { margin-top: 8px; font-size: .75rem; color: var(--accent); }
+.duplicates-intro { column-span: all; color: var(--text-2); font-size: .8rem; padding: 10px 12px; margin: 0 0 18px; border-radius: 8px; background: var(--bg-surface); }
+.duplicate-url { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .95rem; font-weight: 600; overflow-wrap: anywhere; }
+.duplicate-url span { color: var(--text-2); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.duplicate-full-url { font-size: .71rem; color: var(--text-2); overflow-wrap: anywhere; margin: 5px 0 12px; }
+.duplicate-rows { display: flex; flex-direction: column; }
+.duplicate-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line-soft); }
+.duplicate-link { flex: 1; min-width: 0; }
+.duplicate-link .pill { max-width: 100%; }
+.duplicate-path { display: block; font-size: .69rem; color: var(--text-2); margin: 4px 3px 0; overflow-wrap: anywhere; }
+.delete-copy { flex-shrink: 0; font-size: .68rem; max-width: 100px; }
+.delete-copy[data-confirm] { border-color: var(--accent); color: var(--accent); }
+.duplicate-symbol { width: 46px; height: 46px; display: block; margin: 0 auto 18px; color: var(--accent); }
+:where(button, input, select, textarea, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.toggle-switch input:focus-visible + .toggle-slider { outline: 2px solid var(--accent); outline-offset: 3px; }
+input { caret-color: var(--accent); }
+@media (max-width: 420px) {
+  .drawer-body { padding: 16px; }
+  .palette-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .duplicate-row { align-items: flex-start; }
+}
+body[data-theme="light"][data-palette="sage"] { --bg: #f3f5ef; --bg-side: #eaf0e5; --bg-surface: #f9fbf6; --card-bg: #eff4ea; --line: #dbe3d5; --line-soft: #e1e8da; --pill-bg: #fcfef9; }
+body[data-theme="light"][data-palette="ocean"] { --bg: #f1f5f7; --bg-side: #e7eef2; --bg-surface: #f8fbfc; --card-bg: #edf3f6; --line: #d8e2e9; --line-soft: #e0e9ee; --pill-bg: #fbfdfe; }
+body[data-theme="light"][data-palette="rose"] { --bg: #f8f3f3; --bg-side: #f0e7e9; --bg-surface: #fdf9fa; --card-bg: #f7eef0; --line: #e9dadd; --line-soft: #ede0e3; --pill-bg: #fffbfc; }
+body[data-theme="dark"][data-palette="sage"] { --bg: #191f1b; --bg-side: #202822; --bg-surface: #263029; --card-bg: #263029; --line: #3a493e; --line-soft: #334037; --pill-bg: #202822; }
+body[data-theme="dark"][data-palette="ocean"] { --bg: #191e24; --bg-side: #202730; --bg-surface: #262f3a; --card-bg: #262f3a; --line: #394858; --line-soft: #323e4d; --pill-bg: #202730; }
+body[data-theme="dark"][data-palette="rose"] { --bg: #231b1f; --bg-side: #2b2227; --bg-surface: #342a30; --card-bg: #342a30; --line: #4d3c45; --line-soft: #44353d; --pill-bg: #2b2227; }
+.action-toast, .undo-toast { z-index: 2500; max-width: calc(100vw - 32px); }
+body[data-theme="dark"] { color-scheme: dark; }
+body[data-theme="light"] { color-scheme: light; }
+body.has-wallpaper .drag-hint { background: var(--bg-surface); }
+.sec-head, .drawer-group-title, .menu-title, .search-kbd, .suggestion-web kbd, .sec-hidden-count { font-size: .72rem; }
+.nav-count, .f-count, .card-count, .recent-top-rank, .recent-top-count { font-size: .7rem; }
+.setting-note, .drawer-row-desc { font-size: .75rem; }
+.delete-copy { font-size: .72rem; }
+.bookmark-editor { border: 0; }
+.masonry.search-results .card, .masonry .state-hint { animation: none; }
+.link-menu { z-index: 2600; }
+.display, .brand-clock, .view-title, .card-name, .drawer-title { font-size-adjust: from-font; }
