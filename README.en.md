@@ -14,6 +14,7 @@ Turn a new tab into a warm, personal starting point.
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest_V3-8a9e72?style=flat-square&logo=googlechrome&logoColor=white)](manifest.json)
+[![Edge](https://img.shields.io/badge/Edge-Supported-527d96?style=flat-square)](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)
 [![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](extension/newtab.js)
 [![License](https://img.shields.io/badge/License-Noncommercial_Source-927594?style=flat-square)](LICENSE)
 [![Languages](https://img.shields.io/badge/Language-中文_%2F_English-7095a4?style=flat-square)](README.md)
@@ -26,7 +27,7 @@ Turn a new tab into a warm, personal starting point.
 
 ## ✨ A calmer home for your bookmarks
 
-Nookmark is a Chrome new tab extension that turns your real bookmarks into soft, readable cards. Find a saved link, tidy your collection, choose a wallpaper, and start here.
+Nookmark is a desktop new tab extension for Chrome and Microsoft Edge that turns your real bookmarks into soft, readable cards. Find a saved link, tidy your collection, choose a wallpaper, and start here.
 
 `New tab` `Bookmark manager` `Instant search` `Custom wallpaper` `Bilingual` `Warm paper design`
 
@@ -52,23 +53,23 @@ Nookmark is a Chrome new tab extension that turns your real bookmarks into soft,
 | **Search engines** | Google, Bing, Baidu, DuckDuckGo, Sogou and 360 Search, with a matching icon in the fallback prompt |
 | **Pinned links & Top 5** | Keep essentials in a dedicated section and see your most clicked links from the last seven days |
 | **Context menus** | Page, link, folder and search menus with actions such as open, copy, pin, edit and move |
-| **Bookmark editing** | Change titles and URLs, or move bookmarks into folders, including empty ones; changes update Chrome bookmarks |
+| **Bookmark editing** | Change titles and URLs, or move bookmarks into folders, including empty ones; changes update the current browser's bookmarks |
 | **Duplicate check** | Compare complete URLs and show each copy's folder; confirm deletion and undo within eight seconds |
 | **Drag to reorder** | Drag card headers, see spring motion as other cards move aside, and undo a saved order |
 | **Wallpaper & palettes** | Upload a local image or choose a solid/gradient background; adjust brightness, blur, overlay and position |
 | **Home layout** | Toggle and reorder sidebar modules, change card density, and use translucent cards |
 | **Language & themes** | Chinese / English, light / dark / system theme, and configurable clock behavior |
 
-**Editing, moving or deleting a bookmark changes your real Chrome bookmarks.** Card order, pinned links and click statistics are Nookmark preferences; they do not reorder Chrome's native bookmarks bar.
+**Editing, moving or deleting a bookmark changes your current browser's real bookmarks.** Card order, pinned links and click statistics are Nookmark preferences; they do not reorder the browser's native bookmarks bar.
 
 ## 📦 Installation
 
 Download from **[Releases](https://github.com/QuasarG/nookmark/releases/latest)**. `nookmark.crx` is the signed package; `nookmark.zip` contains the extension files.
 
-### Option A: Load the ZIP · Desktop platforms
+### Option A: Load the ZIP · Chrome / Edge desktop
 
 1. Download and extract `nookmark.zip`. Keep the extracted folder.
-2. Open `chrome://extensions` and enable **Developer mode**.
+2. In Chrome, open `chrome://extensions`; in Edge, open `edge://extensions`. Enable **Developer mode**.
 3. Click **Load unpacked** and select the folder containing `manifest.json`.
 4. Open a new tab.
 
@@ -79,6 +80,8 @@ Download from **[Releases](https://github.com/QuasarG/nookmark/releases/latest)*
 3. Drag the CRX onto the extensions page and confirm installation.
 
 Regular Chrome on Windows and macOS restricts off-store CRX installation. Use the ZIP workflow instead. See [Chrome's distribution documentation](https://developer.chrome.com/docs/extensions/how-to/distribute).
+
+For Edge, use the ZIP workflow above. See [Microsoft's sideloading instructions](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading).
 
 ### Updates and migration
 
@@ -136,11 +139,11 @@ Nookmark has no separate backend and does not upload wallpapers to a project ser
 
 | Data / permission | Purpose |
 | :-- | :-- |
-| `bookmarks` | Read, edit, move and delete Chrome bookmarks |
+| `bookmarks` | Read, edit, move and delete the current browser's bookmarks |
 | `storage` | Save appearance, layout, pinned links and click statistics |
 | `favicon` | Display website icons for bookmarks |
 | Local storage | Wallpaper, appearance details, expanded sections and click statistics |
-| Chrome sync storage | Language, base theme, card order and pinned preferences, depending on Chrome sync settings |
+| Browser sync storage | Language, base theme, card order and pinned preferences, depending on the current browser’s sync settings; Chrome and Edge do not share this data |
 
 Top 5 counts links opened through Nookmark, not your entire browsing history. Opening bookmarks or running web searches visits the corresponding websites; demo mode may request website favicons. Search engine prompt icons are bundled and work offline.
 
@@ -153,7 +156,7 @@ git clone https://github.com/QuasarG/nookmark.git
 cd nookmark
 ```
 
-Load the repository through **Load unpacked** in Chrome. After changing source files, reload the extension.
+Load the repository through **Load unpacked** in Chrome or Edge. After changing source files, reload the extension.
 
 ### Browser tests
 
@@ -192,7 +195,7 @@ CHROME_BIN=/path/to/chrome python scripts/package.py
 
 ```text
 nookmark/
-├── manifest.json             # Chrome extension manifest
+├── manifest.json             # Chromium extension manifest
 ├── README.md / README.en.md  # Project documentation
 ├── LICENSE                  # Project license
 ├── extension/               # Extension runtime

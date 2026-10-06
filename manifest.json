@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Nookmark",
   "version": "2.1.0",
-  "description": "Your bookmarks bar, curated as a beautiful archive — every new tab.",
+  "description": "A cozy new tab for Chrome and Edge — bookmark search, pinned links, and a space of your own.",
   "icons": {
     "16": "extension/assets/icons/icon16.png",
     "48": "extension/assets/icons/icon48.png",

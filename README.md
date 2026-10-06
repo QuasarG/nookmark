@@ -14,6 +14,7 @@
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest_V3-8a9e72?style=flat-square&logo=googlechrome&logoColor=white)](manifest.json)
+[![Edge](https://img.shields.io/badge/Edge-Supported-527d96?style=flat-square)](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)
 [![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](extension/newtab.js)
 [![License](https://img.shields.io/badge/License-Noncommercial_Source-927594?style=flat-square)](LICENSE)
 [![Languages](https://img.shields.io/badge/Language-中文_%2F_English-7095a4?style=flat-square)](README.en.md)
@@ -26,7 +27,7 @@
 
 ## ✨ 你的书签，值得更舒服的打开方式
 
-Nookmark 是一款 Chrome 新标签页扩展，把真实书签整理成温暖、轻盈的卡片。找到常用链接、整理收藏、换一张喜欢的壁纸，然后从这里启程。
+Nookmark 是一款支持 Chrome 与 Microsoft Edge 的桌面新标签页扩展，把真实书签整理成温暖、轻盈的卡片。找到常用链接、整理收藏、换一张喜欢的壁纸，然后从这里启程。
 
 `新标签页` `书签管理` `即时搜索` `壁纸自定义` `中英双语` `暖纸面设计`
 
@@ -52,23 +53,23 @@ Nookmark 是一款 Chrome 新标签页扩展，把真实书签整理成温暖、
 | **网页搜索** | Google、Bing、百度、DuckDuckGo、搜狗、360 搜索；提示中展示对应引擎图标 |
 | **置顶与 Top 5** | 把重要链接放进固定区域，查看从本页面点击的近 7 天 Top 5 |
 | **右键菜单** | 页面、链接、文件夹和搜索框都有对应菜单；支持打开、复制、置顶、编辑和移动等操作 |
-| **整理书签** | 修改名称、网址，移动到文件夹（包括空文件夹）；直接同步到 Chrome 真实书签 |
+| **整理书签** | 修改名称、网址，移动到文件夹（包括空文件夹）；直接同步到 当前浏览器的真实书签 |
 | **重复检查** | 按完整网址查看重复副本及路径，删除需确认，并提供 8 秒撤销 |
 | **拖拽排序** | 按住卡片标题拖动，卡片跟随光标，其他卡片以弹簧动效让位；保存后可撤销 |
 | **背景与配色** | 上传本地壁纸，或选择纯色/渐变；调整亮度、模糊、遮罩和背景位置 |
 | **首页布局** | 开关侧栏模块、调整模块顺序，切换卡片密度和透明度 |
 | **双语与主题** | 中文 / English、浅色 / 深色 / 跟随系统，时钟与秒数可配置 |
 
-**书签编辑会改变 Chrome 的真实书签。** 卡片视觉排序、置顶和点击统计是 Nookmark 的页面偏好，不等同于调整 Chrome 原生书签栏顺序。
+**书签编辑会改变 当前浏览器的真实书签。** 卡片视觉排序、置顶和点击统计是 Nookmark 的页面偏好，不等同于调整 浏览器原生书签栏顺序。
 
 ## 📦 安装
 
 前往 **[Releases](https://github.com/QuasarG/nookmark/releases/latest)** 下载。`nookmark.crx` 为签名安装包，`nookmark.zip` 为扩展文件压缩包。
 
-### 方式一：ZIP 加载 · 各桌面平台
+### 方式一：ZIP 加载 · Chrome / Edge 桌面版
 
 1. 下载并解压 `nookmark.zip`，保留解压后的文件夹。
-2. 在 Chrome 打开 `chrome://extensions`，开启右上角的「开发者模式」。
+2. Chrome 打开 `chrome://extensions`；Edge 打开 `edge://extensions`。开启「开发者模式」。
 3. 点击「加载已解压的扩展程序」，选择含有 `manifest.json` 的文件夹。
 4. 打开一个新标签页。
 
@@ -79,6 +80,8 @@ Nookmark 是一款 Chrome 新标签页扩展，把真实书签整理成温暖、
 3. 把 CRX 拖入扩展页面，确认添加。
 
 Windows、macOS 的普通 Chrome 对商店外 CRX 有限制，推荐使用 ZIP 加载方式。详见 [Chrome 官方分发说明](https://developer.chrome.com/docs/extensions/how-to/distribute)。
+
+Edge 推荐使用上面的 ZIP 加载方式，详见 [Microsoft 官方安装说明](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)。
 
 ### 更新与首次迁移
 
@@ -140,11 +143,11 @@ Nookmark 没有独立后端，不会把你的壁纸上传到项目服务器。
 
 | 内容 / 权限 | 用途 |
 | :-- | :-- |
-| `bookmarks` | 读取、编辑、移动和删除 Chrome 书签 |
+| `bookmarks` | 读取、编辑、移动和删除当前浏览器的书签 |
 | `storage` | 保存外观、布局、置顶、点击统计等偏好 |
 | `favicon` | 显示书签网站图标 |
 | 本地存储 | 壁纸、外观细项、折叠状态和点击统计 |
-| Chrome 同步存储 | 语言、基础主题、卡片顺序及置顶等偏好；取决于 Chrome 同步设置 |
+| 浏览器同步存储 | 语言、基础主题、卡片顺序及置顶等偏好；取决于当前浏览器的同步设置；Chrome 与 Edge 不互通 |
 
 Top 5 统计的是通过 Nookmark 打开的链接，不是全浏览器历史。打开书签、网页搜索会访问对应网站；预览模式可能请求网站 favicon。搜索引擎提示图标已内置，可离线显示。
 
@@ -157,7 +160,7 @@ git clone https://github.com/QuasarG/nookmark.git
 cd nookmark
 ```
 
-在 Chrome 通过「加载已解压的扩展程序」选择项目目录。修改源码后重新加载扩展。
+在 Chrome 或 Edge 通过「加载已解压的扩展程序」选择项目目录。修改源码后重新加载扩展。
 
 ### 浏览器测试
 
@@ -196,7 +199,7 @@ CHROME_BIN=/path/to/chrome python scripts/package.py
 
 ```text
 nookmark/
-├── manifest.json             # Chrome 扩展清单
+├── manifest.json             # Chromium 扩展清单
 ├── README.md / README.en.md  # 中英文项目介绍
 ├── LICENSE                  # 项目授权
 ├── extension/               # 扩展运行文件
