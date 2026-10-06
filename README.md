@@ -1,6 +1,6 @@
-<div align="center">
+![Nookmark 品牌横幅](docs/images/banner.svg)
 
-<img src="extension/assets/logo.svg" width="76" height="76" alt="Nookmark logo" />
+<div align="center">
 
 # Nookmark
 
@@ -22,8 +22,6 @@
 [下载最新版](https://github.com/QuasarG/nookmark/releases/latest) · [快速安装](#-安装) · [使用范例](#-使用范例--examples) · [反馈问题](https://github.com/QuasarG/nookmark/issues)
 
 </div>
-
-![Nookmark 品牌横幅](docs/images/banner.svg)
 
 ## ✨ 你的书签，值得更舒服的打开方式
 
