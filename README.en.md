@@ -2,10 +2,6 @@
 
 <div align="center">
 
-# Nookmark
-
-### Start Here~ · 从这里启程～
-
 **A little nook for everything you bookmark.**
 
 Turn a new tab into a warm, personal starting point.

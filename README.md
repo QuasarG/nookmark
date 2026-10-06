@@ -2,10 +2,6 @@
 
 <div align="center">
 
-# Nookmark
-
-### 从这里启程～ · Start Here~
-
 **给书签一个温暖的小角落，让每个新标签页都成为你的起点。**
 
 *A little nook for everything you bookmark.*
