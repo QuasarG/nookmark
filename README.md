@@ -34,7 +34,7 @@ Nookmark 是一款 Chrome 新标签页扩展，把真实书签整理成温暖、
 
 ![Nookmark 中文浅色页面样例](docs/images/preview-zh.png)
 
-> 实际页面截图，使用项目自带的演示书签；不包含个人书签。标题与时钟使用内置未来荧黑 ExtraBold，正文使用思源宋体。
+> 实际页面截图，使用通用设计、开发、阅读等演示书签；不使用个人书签或学校信息。标题与时钟使用内置未来荧黑 ExtraBold，正文使用思源宋体。
 
 <details>
 <summary>查看英文页面 · English preview</summary>

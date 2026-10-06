@@ -34,7 +34,7 @@ Nookmark is a Chrome new tab extension that turns your real bookmarks into soft,
 
 ![Nookmark English light theme preview](docs/images/preview-en.png)
 
-> Captured from the actual interface using the project's demo bookmarks, not personal data. Bookmark titles keep their original language; UI labels follow your language setting. Headlines and the clock use bundled Glow Sans SC ExtraBold; body text uses Source Han Serif.
+> Captured from the actual interface using generic design, development and learning bookmarks, without personal or school information. Bookmark titles keep their original language; UI labels follow your language setting. Headlines and the clock use bundled Glow Sans SC ExtraBold; body text uses Source Han Serif.
 
 <details>
 <summary>Chinese interface preview · 中文页面</summary>
