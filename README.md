@@ -1,66 +1,228 @@
+<div align="center">
+
+<img src="logo.svg" width="76" height="76" alt="Nookmark logo" />
+
 # Nookmark
 
-一款将 Chrome 书签整理成卡片的新标签页扩展。支持中英文、明暗主题、文件夹排序、置顶链接、近期点击排行和书签搜索。
+### 从这里启程～ · Start Here~
 
-## 安装
+**给书签一个温暖的小角落，让每个新标签页都成为你的起点。**
 
-1. 打开 `chrome://extensions`，开启“开发者模式”。
-2. 点击“加载已解压的扩展程序”，选择本仓库目录。
-3. 打开新标签页使用。
+*A little nook for everything you bookmark.*
 
-## 使用
+[简体中文](README.md) · [English](README.en.md)
 
-- 在页面搜索框输入关键词，可即时筛选书签；没有匹配项时，按回车使用设置中的搜索引擎搜索网页。
-- 右键页面、文件夹或链接打开自定义菜单；右键链接可以置顶。
-- 拖动卡片标题调整文件夹顺序，松手后可撤销。
-- 设置中可以切换语言、主题、卡片密度和网页搜索引擎。
+[![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
+[![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest_V3-8a9e72?style=flat-square&logo=googlechrome&logoColor=white)](manifest.json)
+[![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](newtab.js)
+[![License](https://img.shields.io/badge/License-Noncommercial_Source-927594?style=flat-square)](LICENSE)
+[![Languages](https://img.shields.io/badge/Language-中文_%2F_English-7095a4?style=flat-square)](README.en.md)
 
-点击统计和书签偏好保存在 Chrome 扩展存储中。项目没有独立后端。
+[下载最新版](https://github.com/QuasarG/nookmark/releases/latest) · [快速安装](#-安装) · [使用范例](#-使用范例--examples) · [反馈问题](https://github.com/QuasarG/nookmark/issues)
 
-## 开发
+</div>
 
-项目使用原生 HTML、CSS 和 JavaScript，无需构建步骤。修改源码后，在 `chrome://extensions` 中重新加载扩展即可预览。
+![Nookmark 品牌横幅](docs/images/banner.svg)
 
-`nookmark.zip` 和 `nookmark.crx` 是本地生成的安装包，不纳入 Git 历史。
+## ✨ 你的书签，值得更舒服的打开方式
 
-## License
+Nookmark 是一款 Chrome 新标签页扩展，把真实书签整理成温暖、轻盈的卡片。找到常用链接、整理收藏、换一张喜欢的壁纸，然后从这里启程。
 
-项目采用 [Nookmark 非商业源码许可](LICENSE)。允许非商业使用、修改和分发，分发时须提供对应源码并保留授权；未经权利人书面许可，禁止商业利用、闭源分发，以及将本项目或衍生版本上传至任何扩展/应用商店。
+`新标签页` `书签管理` `即时搜索` `壁纸自定义` `中英双语` `暖纸面设计`
 
-这是带用途限制的源码可见许可，不是 OSI 标准开源许可。字体与其他第三方资源仍遵循各自许可，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+## 🖼️ 页面一览
 
-## 个性化与整理
+![Nookmark 中文浅色页面样例](docs/images/preview-zh.png)
 
-- 在设置的“背景与配色”中选择暖纸、青苔、海蓝、玫瑰配色，使用纯色或晨光、林间、暮色背景，也可以上传本地图片。
-- 壁纸支持亮度、模糊、遮罩及水平/垂直位置调节；卡片可以使用实色或半透明外观，并调整不透明度。图片会压缩为 WebP 并保存在本机。
-- 在“首页布局”中开关时钟、置顶链接、Top 5、书签栏文件夹、其他书签和最近新增入口，使用箭头调整侧栏模块顺序。
-- 默认记住卡片、子文件夹和隐藏文件夹预览的展开状态。卡片排序也会保留。
-- 右键书签选择“编辑书签”或“移动到文件夹”，可修改名称、网址及所在文件夹，包括空文件夹。
-- 侧栏的“重复书签”按完整网址检查所有文件夹。每个副本会显示所在路径；删除需要再次点击确认，并可在 8 秒内撤销。网址参数和锚点不同的链接不会合并。
-- 无匹配搜索提示显示当前搜索引擎的本地图标，断网也可显示。
+> 实际页面截图，使用项目自带的演示书签；不包含个人书签。标题与时钟使用内置未来荧黑 ExtraBold，正文使用思源宋体。
 
-外观、壁纸与折叠状态使用本机扩展存储；语言、基础主题、卡片顺序和置顶偏好使用 Chrome 同步存储。扩展没有独立后端，也不会上传壁纸。
+<details>
+<summary>查看英文页面 · English preview</summary>
 
-## 验证
+![Nookmark English preview](docs/images/preview-en.png)
 
-`tests/browser.cjs` 使用 Node 内置测试运行器和 Playwright，覆盖搜索引擎、壁纸、模块排序、布局记忆、书签编辑移动、重复副本删除与撤销、拖拽与窄屏。
+</details>
 
-安装 Playwright 后运行 `node --test tests/browser.cjs`。默认使用 Playwright Chromium，也可以通过 `CHROME_BIN` 指定本机 Chrome 可执行文件。测试使用独立浏览器配置和预览书签，不会修改你的真实书签。
+## 🧭 功能地图
 
-## 图标来源
+| 功能 | 你可以做什么 |
+| :-- | :-- |
+| **卡片书签** | 按文件夹浏览书签，展开子文件夹，记住折叠状态；隐藏暂时不用的文件夹 |
+| **即时搜索** | 输入即显示匹配书签，用方向键选择，回车打开；无匹配时使用默认引擎搜索网页 |
+| **网页搜索** | Google、Bing、百度、DuckDuckGo、搜狗、360 搜索；提示中展示对应引擎图标 |
+| **置顶与 Top 5** | 把重要链接放进固定区域，查看从本页面点击的近 7 天 Top 5 |
+| **右键菜单** | 页面、链接、文件夹和搜索框都有对应菜单；支持打开、复制、置顶、编辑和移动等操作 |
+| **整理书签** | 修改名称、网址，移动到文件夹（包括空文件夹）；直接同步到 Chrome 真实书签 |
+| **重复检查** | 按完整网址查看重复副本及路径，删除需确认，并提供 8 秒撤销 |
+| **拖拽排序** | 按住卡片标题拖动，卡片跟随光标，其他卡片以弹簧动效让位；保存后可撤销 |
+| **背景与配色** | 上传本地壁纸，或选择纯色/渐变；调整亮度、模糊、遮罩和背景位置 |
+| **首页布局** | 开关侧栏模块、调整模块顺序，切换卡片密度和透明度 |
+| **双语与主题** | 中文 / English、浅色 / 深色 / 跟随系统，时钟与秒数可配置 |
 
-`assets/engines/` 的图标分别取自 Google、Bing、百度、DuckDuckGo、搜狗和 360 搜索的官方网站 favicon，仅用于标识所选择的搜索引擎。对应商标归各自权利人所有。
+**书签编辑会改变 Chrome 的真实书签。** 卡片视觉排序、置顶和点击统计是 Nookmark 的页面偏好，不等同于调整 Chrome 原生书签栏顺序。
 
-## 字体
+## 📦 安装
 
-标题和时钟使用内置 Glow Sans SC Normal ExtraBold（未来荧黑，800 字重），正文使用内置思源宋体。字体随扩展打包，不依赖电脑安装或网络。思源宋体的 WOFF2 派生版本内部名称为 Nookmark Serif，以遵守保留字体名称要求。字体版权及 OFL 1.1 授权见 `fonts/` 和第三方声明。
+前往 **[Releases](https://github.com/QuasarG/nookmark/releases/latest)** 下载。`nookmark.crx` 为签名安装包，`nookmark.zip` 为扩展文件压缩包。
 
-## CRX 安装与打包
+### 方式一：ZIP 加载 · 各桌面平台
 
-Linux Chrome 可以打开 `chrome://extensions`，启用开发者模式，将 `nookmark.crx` 拖入页面，然后确认添加。Windows 与 macOS 的普通 Chrome 对商店外 CRX 有限制，建议使用 Chrome Web Store，或解压 `nookmark.zip` 后通过开发者模式加载。参见 [Chrome 官方分发说明](https://developer.chrome.com/docs/extensions/how-to/distribute)。
+1. 下载并解压 `nookmark.zip`，保留解压后的文件夹。
+2. 在 Chrome 打开 `chrome://extensions`，开启右上角的「开发者模式」。
+3. 点击「加载已解压的扩展程序」，选择含有 `manifest.json` 的文件夹。
+4. 打开一个新标签页。
 
-运行 `python scripts/package.py` 可同时生成 CRX 和 ZIP。脚本自动寻找 Chrome，也可通过 `CHROME_BIN` 指定可执行文件。
+### 方式二：CRX 安装 · Linux Chrome
 
-签名密钥保存在 `.extension-signing/nookmark.pem`，权限为仅本人可读写，且已被 Git 忽略。后续打包会复用此密钥，保持 CRX 扩展 ID；请保留密钥，不要随安装包分发。安装包只包含运行所需文件和字体，包含项目许可及第三方授权，不含密钥、测试和开发文档。
+1. 下载 `nookmark.crx`。
+2. 打开 `chrome://extensions`，开启「开发者模式」。
+3. 把 CRX 拖入扩展页面，确认添加。
 
-首次安装 CRX 会作为一个新的扩展安装，与按目录加载的开发版可能具有不同 ID；原开发版的置顶与布局偏好不会自动迁移。当前 CRX 没有配置自动更新，更新版本需重新安装新包。
+Windows、macOS 的普通 Chrome 对商店外 CRX 有限制，推荐使用 ZIP 加载方式。详见 [Chrome 官方分发说明](https://developer.chrome.com/docs/extensions/how-to/distribute)。
+
+### 更新与首次迁移
+
+- ZIP 版本：用新版文件替换原目录中的扩展文件，然后在扩展管理页面点击「重新加载」。
+- CRX 版本：安装新版本的 CRX；官方包复用同一签名密钥，保持扩展 ID。
+- 开发版与 CRX 版可能使用不同 ID，置顶、布局等扩展设置不会自动迁移。
+- 当前没有自动更新服务。移除扩展可能清除它的本地设置与壁纸，更新时请保留原安装。
+
+## ⌨️ 使用范例 · Examples
+
+### 01 / 找到链接 · Find a bookmark
+
+| 中文模式 | English mode |
+| :-- | :-- |
+| 输入 `GitHub` → `↓` / `↑` 选择结果 → `Enter` 打开 | Type `GitHub` → select with `↓` / `↑` → press `Enter` |
+| 输入没有匹配的关键词 → 提示显示默认引擎图标 → `Enter` 搜索网页 | Type an unmatched query → see your engine's icon → press `Enter` to search the web |
+| `Esc` 收起搜索建议 | Press `Esc` to dismiss suggestions |
+
+**例子：** 默认引擎选 Google，输入 `明天的天气`，没有书签匹配时，回车即可使用 Google 搜索。
+
+*Example: choose Bing, type `weather tomorrow`, and press Enter when no bookmark matches.*
+
+### 02 / 留住重要链接 · Keep essentials close
+
+**中文：** 右键 `GitHub` →「置顶链接」。它会出现在侧栏置顶区域；再次右键可以取消置顶。
+
+**English:** Right-click `GitHub` → **Pin link**. It appears in the pinned section; right-click again to unpin.
+
+### 03 / 整理收藏 · Tidy your collection
+
+**中文：** 右键书签 →「编辑书签」修改名称或网址；选择「移动到文件夹」改变所在位置。拖动卡片标题调整页面顺序，误操作时点击撤销。
+
+**English:** Right-click a bookmark to edit its title or URL, or move it to another folder. Drag a card header to reorder the page, then use **Undo** if needed.
+
+### 04 / 打造自己的首页 · Make it yours
+
+**中文：** 设置 →「背景与配色」→ 上传本地图片 → 调整遮罩与模糊 → 选择青苔配色和半透明卡片。
+
+**English:** Settings → **Background & Palette** → upload an image → adjust overlay and blur → choose a palette and translucent cards.
+
+## 🎨 设计语言
+
+**像一页被认真整理过的纸，而不是一排拥挤的入口。**
+
+| 元素 | 设计选择 |
+| :-- | :-- |
+| **标识** | 暖棕色封面、书签切口与圆点，呼应「收藏」和「起点」 |
+| **色彩** | 暖纸面底色，暖纸 / 青苔 / 海蓝 / 玫瑰四组配色，搭配柔和边框 |
+| **字体** | 未来荧黑 ExtraBold 带来醒目的标题；思源宋体保持正文的阅读感 |
+| **结构** | 左侧导航 + 居中搜索 + 瀑布流卡片，让分类与内容各就其位 |
+| **动效** | 渐变菜单、拖拽弹簧反馈、时钟滚动，并适配减少动态效果偏好 |
+| **个性化** | 纯色、晨光 / 林间 / 暮色渐变、本地壁纸与透明卡片 |
+
+Logo 为项目内的 [SVG 标识](logo.svg)，文档横幅位于 [docs/images/banner.svg](docs/images/banner.svg)。两张样例图均由实际页面生成。
+
+## 🔒 数据与权限
+
+Nookmark 没有独立后端，不会把你的壁纸上传到项目服务器。
+
+| 内容 / 权限 | 用途 |
+| :-- | :-- |
+| `bookmarks` | 读取、编辑、移动和删除 Chrome 书签 |
+| `storage` | 保存外观、布局、置顶、点击统计等偏好 |
+| `favicon` | 显示书签网站图标 |
+| 本地存储 | 壁纸、外观细项、折叠状态和点击统计 |
+| Chrome 同步存储 | 语言、基础主题、卡片顺序及置顶等偏好；取决于 Chrome 同步设置 |
+
+Top 5 统计的是通过 Nookmark 打开的链接，不是全浏览器历史。打开书签、网页搜索会访问对应网站；预览模式可能请求网站 favicon。搜索引擎提示图标已内置，可离线显示。
+
+## 🛠️ 开发与验证
+
+原生 HTML / CSS / JavaScript，Manifest V3，无需构建页面。
+
+```bash
+git clone https://github.com/QuasarG/nookmark.git
+cd nookmark
+```
+
+在 Chrome 通过「加载已解压的扩展程序」选择项目目录。修改源码后重新加载扩展。
+
+### 浏览器测试
+
+需要 Node.js 与 Playwright：
+
+```bash
+npm install --no-save --package-lock=false playwright
+npx playwright install chromium
+node --test tests/browser.cjs
+```
+
+也可指定已有 Chrome，跳过下载测试浏览器：
+
+```bash
+CHROME_BIN=/path/to/chrome node --test tests/browser.cjs
+```
+
+测试覆盖搜索引擎图标、壁纸与模块持久化、折叠状态、书签编辑移动、重复检查和撤销、窄屏与拖拽。使用独立浏览器配置和演示书签。
+
+### 打包 CRX / ZIP
+
+需要 Python 3 与 Chrome：
+
+```bash
+python scripts/package.py
+# 手动指定 Chrome：
+CHROME_BIN=/path/to/chrome python scripts/package.py
+```
+
+- 生成 `nookmark.crx` 与 `nookmark.zip`，包含运行文件、字体及许可证。
+- 签名密钥存放在 `.extension-signing/nookmark.pem`，仅本地保存，不进入 Git 或安装包。
+- 保留同一密钥，才能保持你打包的 CRX 扩展 ID；自己的密钥会产生不同于官方包的 ID。
+- 文档、样例图、测试与开发文件不进入安装包。
+
+### 项目结构
+
+```text
+nookmark/
+├── manifest.json             # Chrome 扩展清单
+├── newtab.html / css / js    # 新标签页与主交互
+├── preferences.js           # 个性化与书签整理
+├── logo.svg / icon*.png      # 品牌与扩展图标
+├── assets/engines/           # 本地搜索引擎标识
+├── fonts/                   # 内置字体与 OFL 授权
+├── docs/images/             # README 横幅与页面样例
+├── scripts/package.py       # CRX / ZIP 打包
+└── tests/browser.cjs         # 浏览器验证
+```
+
+## 📄 授权与致谢
+
+项目采用 **[Nookmark 非商业源码许可](LICENSE)**：
+
+- 允许非商业使用、修改和分发；分发须保留授权并提供对应的可编辑源码。
+- 未经权利人书面许可，禁止商业利用、闭源分发，以及上传本项目或衍生版本到任何扩展 / 应用商店。
+- 这是带用途限制的 **源码可见许可**，不属于 OSI 标准开源许可。完整条款以 `LICENSE` 为准。
+
+**第三方字体独立采用 OFL 1.1**：未来荧黑来自 [Project Wêlai](https://github.com/welai/glow-sans)，思源宋体来自 [Adobe](https://github.com/adobe-fonts/source-han-serif)。字体随包分发，附有版权与授权；思源宋体 WOFF2 派生版本的内部名称为 Nookmark Serif。搜索引擎标识归各自权利人所有。详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+---
+
+<div align="center">
+
+**Nookmark · 收藏你的世界，从这里启程。**
+
+[下载](https://github.com/QuasarG/nookmark/releases/latest) · [English](README.en.md) · [反馈](https://github.com/QuasarG/nookmark/issues)
+
+</div>

@@ -4,3 +4,4 @@ nookmark.zip
 nookmark.crx
 *.pem
 .extension-signing/
+node_modules/
