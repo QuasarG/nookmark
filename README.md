@@ -2,10 +2,6 @@
 
 <div align="center">
 
-**给书签一个温暖的小角落，让每个新标签页都成为你的起点。**
-
-*A little nook for everything you bookmark.*
-
 [简体中文](README.md) · [English](README.en.md)
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)

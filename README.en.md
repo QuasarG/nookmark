@@ -2,10 +2,6 @@
 
 <div align="center">
 
-**A little nook for everything you bookmark.**
-
-Turn a new tab into a warm, personal starting point.
-
 [简体中文](README.md) · [English](README.en.md)
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
