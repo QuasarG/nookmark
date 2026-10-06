@@ -212,3 +212,20 @@ test('failed moves restore the original bookmark and leave the editor available 
   assert.deepEqual(errors, []);
   await page.close();
 });
+
+test('startup never displays untranslated placeholders while scripts are delayed', async () => {
+  const page = await browser.newPage();
+  let releaseScript;
+  const gate = new Promise(resolve => { releaseScript = resolve; });
+  await page.route('**/newtab.js', async route => { await gate; await route.continue(); });
+  await page.goto(base, { waitUntil: 'commit' });
+  await page.waitForSelector('#navAll', { state: 'attached' });
+  assert.equal(await page.locator('#navAll').isVisible(), false);
+  assert.equal(await page.locator('#clock').isVisible(), false);
+  assert.equal((await page.locator('#grid').textContent()).trim(), '');
+  releaseScript();
+  await page.waitForSelector('html[data-ready="true"]');
+  assert.equal(await page.locator('#navAll').isVisible(), true);
+  assert.ok(!(await page.locator('#navAll').textContent()).includes('nav_all'));
+  await page.close();
+});

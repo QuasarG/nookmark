@@ -286,17 +286,28 @@ function ensureMock() {
 }
 
 // ===== Entry =====
-init();
+init().catch(err => {
+  console.error("Nookmark startup failed", err);
+  localizeHTML();
+  startClock();
+  grid.innerHTML = `<div class="state-hint">${t("error_desc")}</div>`;
+  document.documentElement.dataset.ready = "true";
+});
 async function init() {
   ensureMock();
   installPreferenceTranslations();
   await preparePreviewBookmarks();
-  await loadSettings();
+  const [treeResult, countsResult] = await Promise.allSettled([
+    chrome.bookmarks.getTree(),
+    chrome.storage.local.get(["clickCounts", "recentClicks"]),
+    loadSettings(),
+  ]);
   localizeHTML();
   startClock();
 
   try {
-    const tree = await chrome.bookmarks.getTree();
+    if (treeResult.status === "rejected") throw treeResult.reason;
+    const tree = treeResult.value;
     indexBookmarkTree(tree);
     const roots = findRoots(tree);
     if (roots.bar?.children) {
@@ -308,13 +319,12 @@ async function init() {
     grid.innerHTML = `<div class="state-hint"><span class="hint-icon">📓</span>${t('error_desc')}</div>`;
   }
 
-  const s = await chrome.storage.local.get(['clickCounts', 'recentClicks']);
+  const s = countsResult.status === "fulfilled" ? countsResult.value : {};
   clickCounts = s.clickCounts || {};
   recentClicks = s.recentClicks || {};
 
   cleanupFolderOrder();
-  await loadHidden();
-  await loadPreferences();
+  await Promise.all([loadHidden(), loadPreferences()]);
 
   render();
   bindEvents();

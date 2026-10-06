@@ -1,3 +1,7 @@
+/* 首屏准备完成前不显示占位内容，也不接受交互。 */
+html:not([data-ready="true"]) body { visibility: hidden; }
+html:not([data-ready="true"]) * { transition: none !important; animation: none !important; }
+
 /* Nookmark：标题使用未来荧黑，正文使用思源宋体。 */
 
 /* 字体随扩展打包，不依赖系统安装或网络。 */
