@@ -1,6 +1,6 @@
-<div align="center">
+![Nookmark brand banner](docs/images/banner.svg)
 
-<img src="extension/assets/logo.svg" width="76" height="76" alt="Nookmark logo" />
+<div align="center">
 
 # Nookmark
 
@@ -22,8 +22,6 @@ Turn a new tab into a warm, personal starting point.
 [Download](https://github.com/QuasarG/nookmark/releases/latest) · [Installation](#-installation) · [Examples](#-everyday-examples) · [Report an issue](https://github.com/QuasarG/nookmark/issues)
 
 </div>
-
-![Nookmark brand banner](docs/images/banner.svg)
 
 ## ✨ A calmer home for your bookmarks
 
