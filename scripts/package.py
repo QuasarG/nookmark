@@ -11,8 +11,10 @@ chrome_binary = os.environ.get('CHROME_BIN') or shutil.which('google-chrome-stab
 if not chrome_binary:
     raise SystemExit('找不到 Chrome，请通过 CHROME_BIN 指定可执行文件。')
 
-files = [root / name for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'manifest.json', 'newtab.html', 'newtab.css', 'newtab.js', 'preferences.js', 'logo.svg', 'icon16.png', 'icon48.png', 'icon128.png']]
-files += [path for folder in ['fonts', 'assets'] for path in sorted((root / folder).rglob('*')) if path.is_file()]
+files = [root / name for name in ['LICENSE', 'docs/THIRD_PARTY_NOTICES.md', 'manifest.json']]
+files += [path for path in sorted((root / 'extension').rglob('*')) if path.is_file()]
+output = root / 'dist'
+output.mkdir(exist_ok=True)
 key_directory = root / '.extension-signing'
 key_directory.mkdir(mode=0o700, exist_ok=True)
 key_directory.chmod(0o700)
@@ -43,10 +45,10 @@ with TemporaryDirectory(prefix='nookmark-package-') as temporary:
         with os.fdopen(descriptor, 'wb') as destination:
             destination.write(generated_key.read_bytes())
     key.chmod(0o600)
-    shutil.copyfile(package, root / 'nookmark.crx')
+    shutil.copyfile(package, output / 'nookmark.crx')
 
-with ZipFile(root / 'nookmark.zip', 'w', ZIP_DEFLATED) as package:
+with ZipFile(output / 'nookmark.zip', 'w', ZIP_DEFLATED) as package:
     for source in files:
         package.write(source, source.relative_to(root))
-print('已生成 nookmark.crx 和 nookmark.zip，包含 ' + str(len(files)) + ' 个扩展文件。')
+print('已生成 dist/nookmark.crx 和 dist/nookmark.zip，包含 ' + str(len(files)) + ' 个扩展文件。')
 print('签名密钥保存在 .extension-signing/nookmark.pem；已排除在 Git 和安装包之外。')

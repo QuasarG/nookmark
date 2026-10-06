@@ -5,7 +5,7 @@ const { readFile } = require('node:fs/promises');
 const path = require('node:path');
 const { chromium } = require('playwright');
 let server, browser, base;
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '..', 'extension');
 before(async () => {
   server = createServer(async (request, response) => {
     const file = path.resolve(root, '.' + new URL(request.url, 'http://localhost').pathname);
@@ -67,7 +67,7 @@ test('wallpaper upload, live controls, palette and module ordering survive reloa
   await page.locator('#cardStyleSelect').selectOption('translucent');
   await page.locator('#wallpaperBlur').fill('8');
   await page.locator('#cardOpacity').fill('80');
-  await page.locator('#wallpaperFile').setInputFiles(path.join(root, 'icon128.png'));
+  await page.locator('#wallpaperFile').setInputFiles(path.join(root, 'assets/icons/icon128.png'));
   await page.waitForFunction(() => document.querySelector('#wallpaperSelect').value === 'custom');
   await page.locator('#wallpaperPositionX').fill('25');
   await page.locator('[data-module-toggle="top"]').uncheck();

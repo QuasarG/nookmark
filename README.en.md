@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.svg" width="76" height="76" alt="Nookmark logo" />
+<img src="extension/assets/logo.svg" width="76" height="76" alt="Nookmark logo" />
 
 # Nookmark
 
@@ -14,7 +14,7 @@ Turn a new tab into a warm, personal starting point.
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest_V3-8a9e72?style=flat-square&logo=googlechrome&logoColor=white)](manifest.json)
-[![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](newtab.js)
+[![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](extension/newtab.js)
 [![License](https://img.shields.io/badge/License-Noncommercial_Source-927594?style=flat-square)](LICENSE)
 [![Languages](https://img.shields.io/badge/Language-中文_%2F_English-7095a4?style=flat-square)](README.md)
 
@@ -128,7 +128,7 @@ Open Settings → **Background & Palette**, upload an image, and adjust blur and
 | **Motion** | Fading menus, spring feedback when dragging, rolling clock digits and reduced-motion support |
 | **Personalization** | Solid colors, dawn / forest / dusk gradients, local wallpaper and translucent cards |
 
-The original logo lives in [logo.svg](logo.svg). The documentation banner is [docs/images/banner.svg](docs/images/banner.svg); both previews are real interface captures.
+The original logo lives in [logo.svg](extension/assets/logo.svg). The documentation banner is [docs/images/banner.svg](docs/images/banner.svg); both previews are real interface captures.
 
 ## 🔒 Data and permissions
 
@@ -183,7 +183,7 @@ python scripts/package.py
 CHROME_BIN=/path/to/chrome python scripts/package.py
 ```
 
-- Creates `nookmark.crx` and `nookmark.zip`, including runtime files, fonts and license notices.
+- Creates `dist/nookmark.crx` and `dist/nookmark.zip`, including runtime files, fonts and license notices.
 - Keeps the private key in `.extension-signing/nookmark.pem`, excluded from Git and packages.
 - Reuse the key to keep your CRX ID. A new personal key produces an ID different from the official package.
 - Documentation, screenshots, tests and development files are excluded from packages.
@@ -192,15 +192,18 @@ CHROME_BIN=/path/to/chrome python scripts/package.py
 
 ```text
 nookmark/
-├── manifest.json             # Extension manifest
-├── newtab.html / css / js    # New tab interface and interactions
-├── preferences.js           # Personalization and bookmark tools
-├── logo.svg / icon*.png      # Brand and extension icons
-├── assets/engines/           # Bundled search engine icons
-├── fonts/                   # Fonts and OFL notices
-├── docs/images/             # Banner and interface previews
+├── manifest.json             # Chrome extension manifest
+├── README.md / README.en.md  # Project documentation
+├── LICENSE                  # Project license
+├── extension/               # Extension runtime
+│   ├── newtab.html / css / js
+│   ├── preferences.js
+│   ├── assets/              # Logo, icons and engine identifiers
+│   └── fonts/               # Bundled fonts and OFL notices
+├── docs/                    # Previews and third-party notices
 ├── scripts/package.py       # CRX / ZIP packaging
-└── tests/browser.cjs         # Browser checks
+├── tests/browser.cjs         # Browser checks
+└── dist/                    # Local packages (Git-ignored)
 ```
 
 ## 📄 License and credits
@@ -211,7 +214,7 @@ The project uses the **[Nookmark Noncommercial Source License](LICENSE)**:
 - Commercial exploitation, closed-source redistribution, and uploading the project or derivatives to any extension/application store require the copyright holder's written permission.
 - This is a **source-available license**, not an OSI-approved open-source license. The complete `LICENSE` text governs.
 
-**Fonts retain their independent OFL 1.1 licenses.** Glow Sans comes from [Project Wêlai](https://github.com/welai/glow-sans); Source Han Serif comes from [Adobe](https://github.com/adobe-fonts/source-han-serif). Copyright and license notices accompany the bundled fonts. The Source Han Serif WOFF2 derivatives use the internal name Nookmark Serif. Search engine marks belong to their respective owners. See [third-party notices](THIRD_PARTY_NOTICES.md).
+**Fonts retain their independent OFL 1.1 licenses.** Glow Sans comes from [Project Wêlai](https://github.com/welai/glow-sans); Source Han Serif comes from [Adobe](https://github.com/adobe-fonts/source-han-serif). Copyright and license notices accompany the bundled fonts. The Source Han Serif WOFF2 derivatives use the internal name Nookmark Serif. Search engine marks belong to their respective owners. See [third-party notices](docs/THIRD_PARTY_NOTICES.md).
 
 ---
 

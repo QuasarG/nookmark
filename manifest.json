@@ -4,20 +4,24 @@
   "version": "2.1.0",
   "description": "Your bookmarks bar, curated as a beautiful archive — every new tab.",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "16": "extension/assets/icons/icon16.png",
+    "48": "extension/assets/icons/icon48.png",
+    "128": "extension/assets/icons/icon128.png"
   },
-  "permissions": ["bookmarks", "storage", "favicon"],
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "favicon"
+  ],
   "chrome_url_overrides": {
-    "newtab": "newtab.html"
+    "newtab": "extension/newtab.html"
   },
   "action": {
     "default_title": "Nookmark",
     "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+      "16": "extension/assets/icons/icon16.png",
+      "48": "extension/assets/icons/icon48.png",
+      "128": "extension/assets/icons/icon128.png"
     }
   },
   "content_security_policy": {

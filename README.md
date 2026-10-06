@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.svg" width="76" height="76" alt="Nookmark logo" />
+<img src="extension/assets/logo.svg" width="76" height="76" alt="Nookmark logo" />
 
 # Nookmark
 
@@ -14,7 +14,7 @@
 
 [![Release](https://img.shields.io/github/v/release/QuasarG/nookmark?style=flat-square&color=b77848)](https://github.com/QuasarG/nookmark/releases/latest)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest_V3-8a9e72?style=flat-square&logo=googlechrome&logoColor=white)](manifest.json)
-[![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](newtab.js)
+[![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-c9a351?style=flat-square&logo=javascript&logoColor=white)](extension/newtab.js)
 [![License](https://img.shields.io/badge/License-Noncommercial_Source-927594?style=flat-square)](LICENSE)
 [![Languages](https://img.shields.io/badge/Language-中文_%2F_English-7095a4?style=flat-square)](README.en.md)
 
@@ -132,7 +132,7 @@ Windows、macOS 的普通 Chrome 对商店外 CRX 有限制，推荐使用 ZIP �
 | **动效** | 渐变菜单、拖拽弹簧反馈、时钟滚动，并适配减少动态效果偏好 |
 | **个性化** | 纯色、晨光 / 林间 / 暮色渐变、本地壁纸与透明卡片 |
 
-Logo 为项目内的 [SVG 标识](logo.svg)，文档横幅位于 [docs/images/banner.svg](docs/images/banner.svg)。两张样例图均由实际页面生成。
+Logo 为项目内的 [SVG 标识](extension/assets/logo.svg)，文档横幅位于 [docs/images/banner.svg](docs/images/banner.svg)。两张样例图均由实际页面生成。
 
 ## 🔒 数据与权限
 
@@ -187,7 +187,7 @@ python scripts/package.py
 CHROME_BIN=/path/to/chrome python scripts/package.py
 ```
 
-- 生成 `nookmark.crx` 与 `nookmark.zip`，包含运行文件、字体及许可证。
+- 生成 `dist/nookmark.crx` 与 `dist/nookmark.zip`，包含运行文件、字体及许可证。
 - 签名密钥存放在 `.extension-signing/nookmark.pem`，仅本地保存，不进入 Git 或安装包。
 - 保留同一密钥，才能保持你打包的 CRX 扩展 ID；自己的密钥会产生不同于官方包的 ID。
 - 文档、样例图、测试与开发文件不进入安装包。
@@ -197,14 +197,17 @@ CHROME_BIN=/path/to/chrome python scripts/package.py
 ```text
 nookmark/
 ├── manifest.json             # Chrome 扩展清单
-├── newtab.html / css / js    # 新标签页与主交互
-├── preferences.js           # 个性化与书签整理
-├── logo.svg / icon*.png      # 品牌与扩展图标
-├── assets/engines/           # 本地搜索引擎标识
-├── fonts/                   # 内置字体与 OFL 授权
-├── docs/images/             # README 横幅与页面样例
+├── README.md / README.en.md  # 中英文项目介绍
+├── LICENSE                  # 项目授权
+├── extension/               # 扩展运行文件
+│   ├── newtab.html / css / js
+│   ├── preferences.js
+│   ├── assets/              # Logo、图标与搜索引擎标识
+│   └── fonts/               # 内置字体与 OFL 授权
+├── docs/                    # 样例图与第三方声明
 ├── scripts/package.py       # CRX / ZIP 打包
-└── tests/browser.cjs         # 浏览器验证
+├── tests/browser.cjs         # 浏览器验证
+└── dist/                    # 本地安装包（不进入 Git）
 ```
 
 ## 📄 授权与致谢
@@ -215,7 +218,7 @@ nookmark/
 - 未经权利人书面许可，禁止商业利用、闭源分发，以及上传本项目或衍生版本到任何扩展 / 应用商店。
 - 这是带用途限制的 **源码可见许可**，不属于 OSI 标准开源许可。完整条款以 `LICENSE` 为准。
 
-**第三方字体独立采用 OFL 1.1**：未来荧黑来自 [Project Wêlai](https://github.com/welai/glow-sans)，思源宋体来自 [Adobe](https://github.com/adobe-fonts/source-han-serif)。字体随包分发，附有版权与授权；思源宋体 WOFF2 派生版本的内部名称为 Nookmark Serif。搜索引擎标识归各自权利人所有。详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+**第三方字体独立采用 OFL 1.1**：未来荧黑来自 [Project Wêlai](https://github.com/welai/glow-sans)，思源宋体来自 [Adobe](https://github.com/adobe-fonts/source-han-serif)。字体随包分发，附有版权与授权；思源宋体 WOFF2 派生版本的内部名称为 Nookmark Serif。搜索引擎标识归各自权利人所有。详见 [第三方声明](docs/THIRD_PARTY_NOTICES.md)。
 
 ---
 
